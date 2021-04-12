@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">WorkoutApp</string>
+    <string name="news_text">News</string>
+    <string name="training_tracker_text">Tracker</string>
+    <string name="history_text">History</string>
+    <string name="scheduler_text">Scheduler</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
