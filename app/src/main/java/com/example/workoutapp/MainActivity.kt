@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.example.workoutapp.databinding.ActivityMainBinding
 import com.example.workoutapp.news.NewsFragment
+import com.example.workoutapp.scheduler.SchedulerFragment
 import com.example.workoutapp.tracker.TrackerFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.scheduler_page -> {
+                val schedulerFragment = SchedulerFragment.newInstance()
+                openFragment(schedulerFragment)
                 return@OnNavigationItemSelectedListener true
             }
             else -> return@OnNavigationItemSelectedListener false
