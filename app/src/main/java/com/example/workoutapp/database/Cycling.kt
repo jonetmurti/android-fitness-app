@@ -9,9 +9,9 @@ import java.util.*
 data class Cycling(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val date: Date,
-    val timeStart: LocalDateTime,
-    val timeEnd: LocalDateTime,
+    val date: Long,
+    val timeStart: Long,
+    val timeEnd: Long,
 )
 
 @Entity(tableName = "cycling_track", foreignKeys = arrayOf(ForeignKey(entity = Cycling::class,

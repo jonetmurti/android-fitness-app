@@ -1,6 +1,7 @@
 package com.example.workoutapp.database
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +18,10 @@ interface TrackerDao{
     @Transaction
     @Query("DELETE FROM cycling")
     suspend fun deleteAllCycling()
+
+    @Transaction
+    @Query("SELECT * FROM cycling ORDER BY timeStart DESC")
+    fun getRecentCycling(): LiveData<CyclingAndTrack>
 }
 
 @Database(entities = [Cycling::class, CyclingTrack::class], version = 1)
