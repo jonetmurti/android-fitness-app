@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.workoutapp.databinding.NewsItemBinding
 import com.example.workoutapp.network.NetworkNews
 
@@ -24,6 +25,10 @@ class NewsAdapter(private val listener: NewsClickListener): ListAdapter<NetworkN
             binding.tvDate.text = item.publishedAt
             binding.tvDescription.text = item.description
             binding.tvTitle.text = item.title
+
+            Glide.with(binding.root)
+                    .load(item.urlToImage)
+                    .into(binding.imageView)
 
             binding.root.setOnClickListener {
                 listener.onClick(item)
