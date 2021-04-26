@@ -23,7 +23,11 @@
         android:id="@+id/tracker_page"
         android:name="com.example.workoutapp.tracker.TrackerFragment"
         android:label="fragment_tracker"
-        tools:layout="@layout/fragment_tracker" />
+        tools:layout="@layout/fragment_tracker" >
+        <action
+            android:id="@+id/action_tracker_page_to_trackerResultFragment"
+            app:destination="@id/trackerResultFragment" />
+    </fragment>
     <fragment
         android:id="@+id/webView_page"
         android:name="com.example.workoutapp.news.WebViewFragment"
@@ -33,4 +37,9 @@
             android:name="news"
             app:argType="com.example.workoutapp.network.NetworkNews" />
     </fragment>
+    <fragment
+        android:id="@+id/trackerResultFragment"
+        android:name="com.example.workoutapp.tracker.TrackerResultFragment"
+        android:label="fragment_tracker_result"
+        tools:layout="@layout/fragment_tracker_result" />
 </navigation>

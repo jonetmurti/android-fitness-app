@@ -1,5 +1,6 @@
 package com.example.workoutapp.news
 
+import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -7,10 +8,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
 import com.example.workoutapp.databinding.FragmentNewsBinding
 import com.example.workoutapp.network.NetworkNews
@@ -47,6 +54,15 @@ class NewsFragment : Fragment(), NewsAdapter.NewsClickListener {
 
     private var mCompositeDisposable: CompositeDisposable? = CompositeDisposable()
 
+    lateinit var mActivity : FragmentActivity
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        activity?.let { mActivity = it }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -68,6 +84,23 @@ class NewsFragment : Fragment(), NewsAdapter.NewsClickListener {
         binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupToolbar()
+    }
+
+    private fun setupToolbar(){
+        val homeActivity = mActivity as MainActivity
+        val drawerLayout: DrawerLayout = homeActivity.findViewById(R.id.drawerLayout)
+
+        val navController = findNavController()
+        val appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
+
+        binding.toolbar
+            .setupWithNavController(navController, appBarConfiguration)
     }
 
     override fun onDestroy() {

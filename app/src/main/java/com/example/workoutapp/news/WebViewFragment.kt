@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.databinding.FragmentWebViewBinding
 import com.example.workoutapp.news.WebViewFragmentArgs
 
@@ -52,6 +55,21 @@ class WebViewFragment : Fragment() {
         webSettings.javaScriptEnabled = true
         // Inflate the layout for this fragment
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupToolbar()
+    }
+
+    private fun setupToolbar(){
+        val navController = findNavController()
+
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+
+        binding.toolbar
+            .setupWithNavController(navController, appBarConfiguration)
     }
 
 

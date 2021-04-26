@@ -24,6 +24,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.BuildConfig
 import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
@@ -116,7 +119,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
             if(enabled){
                 locationService?.unsubscribeToLocationUpdates()
                         ?: Log.d("Tracker Fragment", "Service not bound")
-
+                findNavController().navigate(TrackerFragmentDirections.actionTrackerPageToTrackerResultFragment())
             }else{
                 requestForegroundPermission()
             }
@@ -142,6 +145,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         val serviceIntent = Intent(requireActivity(), LocationService::class.java)
         requireActivity().bindService(serviceIntent, locationServiceConnection, Context.BIND_AUTO_CREATE)
 
+        setupToolbar()
     }
 
     override fun onResume() {
@@ -208,7 +212,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         Log.d("Tracker Fragment", provideRationale.toString())
         if(provideRationale){
             Snackbar.make(
-                    activity!!.findViewById(R.id.activity_main),
+                    requireActivity().findViewById(R.id.drawerLayout),
                     R.string.permission_rationale,
                     Snackbar.LENGTH_LONG
             )
@@ -243,7 +247,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
                 else -> {
                     updateButtonState(false)
                     Snackbar.make(
-                            requireActivity().findViewById(R.id.activity_main),
+                            requireActivity().findViewById(R.id.drawerLayout),
                             "Permission was denied, but is needed for core functionality",
                             Snackbar.LENGTH_LONG
                     )
@@ -312,6 +316,15 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
     private fun logResultsToScreen(output: String) {
         val outputWithPreviousLogs = "$output\n${outputTextView.text}"
         outputTextView.text = outputWithPreviousLogs
+    }
+
+    private fun setupToolbar(){
+        val navController = findNavController()
+
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+
+        binding.toolbar
+            .setupWithNavController(navController, appBarConfiguration)
     }
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {

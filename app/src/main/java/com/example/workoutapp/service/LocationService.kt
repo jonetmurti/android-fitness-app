@@ -95,7 +95,6 @@ class LocationService : Service() {
 
         currentId += 1
         var cycling = Cycling(
-                id = currentId,
                 date = System.currentTimeMillis(),
                 timeStart = System.currentTimeMillis(),
                 timeEnd = System.currentTimeMillis(),
