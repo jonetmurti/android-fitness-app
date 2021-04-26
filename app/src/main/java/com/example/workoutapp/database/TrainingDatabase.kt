@@ -24,7 +24,7 @@ interface TrackerDao{
     fun getRecentCycling(): LiveData<CyclingAndTrack>
 }
 
-@Database(entities = [Cycling::class, CyclingTrack::class], version = 1)
+@Database(entities = [Cycling::class, CyclingTrack::class], version = 2)
 abstract class TrainingDatabase : RoomDatabase() {
     abstract val trackerDao: TrackerDao
 

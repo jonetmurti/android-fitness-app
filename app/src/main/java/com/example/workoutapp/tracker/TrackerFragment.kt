@@ -3,6 +3,10 @@ package com.example.workoutapp.tracker
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -43,7 +47,11 @@ private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
  * Use the [TrackerFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener, SensorEventListener {
+    private var sensorManager: SensorManager? = null
+    private var running = false
+    private var totalSteps = 0f
+    private var previousTotalSteps = 0f
 
     private var _binding: FragmentTrackerBinding? = null
     private val binding get() = _binding!!
@@ -108,10 +116,13 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
             if(enabled){
                 locationService?.unsubscribeToLocationUpdates()
                         ?: Log.d("Tracker Fragment", "Service not bound")
+
             }else{
                 requestForegroundPermission()
             }
         }
+
+        sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         // Inflate the layout for this fragment
         return view
     }
@@ -262,6 +273,40 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         }else{
             trackingButton.text = "Start receiving location"
         }
+    }
+
+    private fun saveData() {
+
+        // Shared Preferences will allow us to save
+        // and retrieve data in the form of key,value pair.
+        // In this function we will save data
+        val sharedPreferences = requireContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
+
+        val editor = sharedPreferences.edit()
+        editor.putFloat("key1", previousTotalSteps)
+        editor.apply()
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+
+        // Calling the TextView that we made in activity_main.xml
+        // by the id given to that TextView
+//        var tv_stepsTaken = findViewById<TextView>(R.id.tv_stepsTaken)
+
+        if (running) {
+            totalSteps = event!!.values[0]
+
+            // Current steps are calculated by taking the difference of total steps
+            // and previous steps
+            val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+
+            // It will show the current steps to the user
+//            tv_stepsTaken.text = ("$currentSteps")
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        TODO("Not yet implemented")
     }
 
     private fun logResultsToScreen(output: String) {

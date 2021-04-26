@@ -9,30 +9,38 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.workoutapp.databinding.NewsItemBinding
 import com.example.workoutapp.network.NetworkNews
 
-class NewsAdapter: ListAdapter<NetworkNews, NewsAdapter.ViewHolder>(NewsDiffCallback()) {
+class NewsAdapter(private val listener: NewsClickListener): ListAdapter<NetworkNews, NewsAdapter.ViewHolder>(NewsDiffCallback()) {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
+        return ViewHolder.from(parent, listener)
     }
 
-    class ViewHolder(private val binding: NewsItemBinding): RecyclerView.ViewHolder(binding.root){
+    class ViewHolder(private val binding: NewsItemBinding, private val listener: NewsClickListener): RecyclerView.ViewHolder(binding.root){
         fun bind(item: NetworkNews){
             binding.tvAuthor.text = item.author
             binding.tvDate.text = item.publishedAt
             binding.tvDescription.text = item.description
             binding.tvTitle.text = item.title
+
+            binding.root.setOnClickListener {
+                listener.onClick(item)
+            }
         }
 
         companion object{
-            fun from(parent: ViewGroup): ViewHolder{
+            fun from(parent: ViewGroup, listener: NewsClickListener): ViewHolder{
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = NewsItemBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding)
+                return ViewHolder(binding, listener)
             }
         }
+    }
+
+    interface NewsClickListener{
+        fun onClick(item: NetworkNews)
     }
 }
 

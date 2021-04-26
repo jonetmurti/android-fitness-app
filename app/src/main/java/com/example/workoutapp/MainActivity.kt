@@ -4,7 +4,11 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.onNavDestinationSelected
 import com.example.workoutapp.databinding.ActivityMainBinding
 import com.example.workoutapp.news.NewsFragment
 import com.example.workoutapp.scheduler.SchedulerFragment
@@ -43,7 +47,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        binding.bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+
+        val navController = findNavController(R.id.nav_host_fragment)
+        NavigationUI.setupWithNavController(binding.bottomNavigation, navController)
+//        binding.bottomNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return findNavController(R.id.nav_host_fragment).navigateUp()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val navController = this.findNavController(R.id.nav_host_fragment)
+        return item.onNavDestinationSelected(navController) ||
+                super.onOptionsItemSelected(item)
     }
 
     private fun openFragment(fragment: Fragment) {

@@ -9,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.workoutapp.R
 import com.example.workoutapp.databinding.FragmentNewsBinding
+import com.example.workoutapp.network.NetworkNews
 import com.example.workoutapp.network.NetworkService
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -27,7 +29,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [NewsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class NewsFragment : Fragment() {
+class NewsFragment : Fragment(), NewsAdapter.NewsClickListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -61,7 +63,7 @@ class NewsFragment : Fragment() {
 
         callApi()
 
-        newsAdapter = NewsAdapter()
+        newsAdapter = NewsAdapter(this)
         binding.recyclerViewNews.adapter = newsAdapter
         binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
         // Inflate the layout for this fragment
@@ -83,6 +85,10 @@ class NewsFragment : Fragment() {
                 .subscribe ({ items ->
                     newsAdapter.submitList(items.articles)
                 },{}))
+    }
+
+    override fun onClick(item: NetworkNews) {
+        findNavController().navigate(NewsFragmentDirections.actionNewsPageToWebViewPage(item))
     }
 
     companion object {

@@ -24,7 +24,7 @@ fun calculateTotalDistance(cycling: CyclingAndTrack): Double{
         return 0.toDouble()
     }
     var sum = 0.toDouble()
-    for(i in 1..cycling.tracks.size){
+    for(i in 1..cycling.tracks.size - 1){
         sum += calculateDistanceInKm(cycling.tracks[i].latitude, cycling.tracks[i].longitude, cycling.tracks[i-1].latitude, cycling.tracks[i-1].longitude)
     }
 

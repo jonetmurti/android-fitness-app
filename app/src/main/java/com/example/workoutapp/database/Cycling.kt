@@ -8,7 +8,7 @@ import java.util.*
 @Entity(tableName = "cycling")
 data class Cycling(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: Int = 0,
     val date: Long,
     val timeStart: Long,
     val timeEnd: Long,
@@ -20,8 +20,8 @@ data class Cycling(
     onDelete = ForeignKey.CASCADE
     )))
 data class CyclingTrack(
-    @PrimaryKey
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val latitude: Double,
     val longitude: Double,
     @ColumnInfo(index = true)
