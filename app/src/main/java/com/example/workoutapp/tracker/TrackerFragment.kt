@@ -38,8 +38,8 @@ class TrackerFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentTrackerBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -73,6 +73,6 @@ class TrackerFragment : Fragment() {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance() =
-            TrackerFragment()
+                TrackerFragment()
     }
 }

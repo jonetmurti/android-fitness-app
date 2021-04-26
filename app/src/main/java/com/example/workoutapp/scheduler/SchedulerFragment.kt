@@ -11,7 +11,16 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.workoutapp.R
+import com.example.workoutapp.database.*
 import com.example.workoutapp.databinding.FragmentScheduleBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.runBlocking
+import java.sql.Date
+import java.sql.Time
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 
 
@@ -25,7 +34,9 @@ private const val ARG_PARAM2 = "param2"
  * Use the [SchedulerFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SchedulerFragment : Fragment() {
+class SchedulerFragment : Fragment( ) {
+    val applicationScope = CoroutineScope(SupervisorJob())
+
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -37,8 +48,16 @@ class SchedulerFragment : Fragment() {
     private var tps: TimePickerDialog? = null
     private var tpe: TimePickerDialog? = null
 
+
+
+    private lateinit var scheduleDao: SchedulerDao
+    private var schedules : List<Scheduler>? = null;
+    private var newSched : Scheduler? = null;
+
     // Data
+    private var trainingType: Int = 1
     private var exerciseType: String = "Walking"
+    private var day: String? = null
     private var time_start_hour: Int = Calendar.getInstance().get(Calendar.HOUR)
     private var time_start_mins: Int = Calendar.getInstance().get(Calendar.MINUTE)
     private var time_end_hour: Int = Calendar.getInstance().get(Calendar.HOUR)
@@ -54,6 +73,7 @@ class SchedulerFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
     }
 
     override fun onCreateView(
@@ -62,6 +82,8 @@ class SchedulerFragment : Fragment() {
     ): View? {
         _binding = FragmentScheduleBinding.inflate(inflater, container, false)
         val view = binding.root
+
+
         spTrainingType  = view.findViewById(R.id.training_type)
         val timeStartPicker : TextView = view.findViewById(R.id.timeStartPicker)
         val timeEndPicker : TextView = view.findViewById(R.id.timeEndPicker)
@@ -73,7 +95,7 @@ class SchedulerFragment : Fragment() {
             override fun onClick(v: View?) {
                 tps = activity?.let {
                     TimePickerDialog(it,
-                             { view, hourOfday, minute ->
+                            { view, hourOfday, minute ->
 
                                 timeStartPicker.text = convertIntToString(hourOfday) + ':' + convertIntToString(minute)
                                 time_start_hour = hourOfday
@@ -94,7 +116,7 @@ class SchedulerFragment : Fragment() {
             override fun onClick(v: View?) {
                 tpe = activity?.let {
                     TimePickerDialog(it,
-                             { view, hourOfday, minute ->
+                            { view, hourOfday, minute ->
 
                                 timeEndPicker.text = convertIntToString(hourOfday) + ':' + convertIntToString(minute)
                                 time_end_hour = hourOfday
@@ -137,6 +159,23 @@ class SchedulerFragment : Fragment() {
             }
         })
         val dayPicker : Spinner = view.findViewById(R.id.dayPicker)
+
+
+
+        dayPicker?.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                    parentView: AdapterView<*>,
+                    selectedItemView: View,
+                    position: Int,
+                    id: Long) {
+                day = dayPicker?.selectedItem.toString()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+        })
+
         spTrainingType?.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                     parentView: AdapterView<*>,
@@ -146,14 +185,17 @@ class SchedulerFragment : Fragment() {
             ) {
                 val value: String = spTrainingType?.selectedItem.toString()
                 if (value == "One time only") {
+                    trainingType = 1
                     datepicker.visibility = View.VISIBLE
                     dayPicker.visibility = View.GONE
 
                 } else if (value == "Daily") {
+                    trainingType = 2
                     datepicker.visibility = View.GONE
                     dayPicker.visibility = View.GONE
 
                 } else {
+                    trainingType = 3
                     datepicker.visibility = View.GONE
                     dayPicker.visibility = View.VISIBLE
                 }
@@ -198,15 +240,18 @@ class SchedulerFragment : Fragment() {
 
         val submit : Button = view.findViewById(R.id.bt_submit)
 
-        submit.setOnClickListener(object: View.OnClickListener {
+        submit.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
+
+                scheduleDao = SchedulerDatabase.getDatabase(requireContext().applicationContext).schedulerDao
+
                 val start = Calendar.getInstance()
                 val end = Calendar.getInstance()
-                val goalText : EditText = view.findViewById(R.id.goal)
+                val goalText: EditText = view.findViewById(R.id.goal)
 
-                val goal : String = goalText.text.toString()
-                start.set(c_year, c_month-1, c_date, time_start_hour, time_start_mins)
-                end.set(c_year, c_month-1, c_date, time_end_hour, time_end_mins)
+                val goal: String = goalText.text.toString()
+                start.set(c_year, c_month - 1, c_date, time_start_hour, time_start_mins)
+                end.set(c_year, c_month - 1, c_date, time_end_hour, time_end_mins)
 
                 if (end.before(start) || end.equals(start) || goal.trim().isEmpty()) {
                     val text = "Please check all the fields before you submit!"
@@ -215,7 +260,46 @@ class SchedulerFragment : Fragment() {
                     val toast = Toast.makeText(context, text, duration)
                     toast.setGravity(Gravity.CENTER, 0, 0)
                     toast.show()
+                } else {
+                    var step : Int? = null
+                    var km : Int? = null
+                    var sched :  Scheduler? = null
+                    if (exerciseType == "Walking"){
+                        step =  (goalText.text.toString()).toInt()
+                    } else {
+                        km = (goalText.text.toString()).toInt()
+                    }
+                    val startCalendar : Calendar = Calendar.getInstance()
+                    startCalendar.set(2021,1,1, time_start_hour,time_start_mins)
+                    val startTime = startCalendar.timeInMillis
+                    val endCalendar : Calendar = Calendar.getInstance()
+                    endCalendar.set(2021,1,1, time_end_hour,time_end_mins)
+                    val endTime = endCalendar.timeInMillis
+                    if (trainingType == 1){
+                        val dateCalendar : Calendar = Calendar.getInstance()
+                        dateCalendar.set(c_year, c_month, c_date, 0, 0)
+                        val newdate = dateCalendar.timeInMillis
+                        sched = Scheduler(0, trainingType, null, newdate, startTime, endTime, exerciseType, km, step)
+                    } else if ( trainingType == 2){
+                        sched = Scheduler(0, trainingType, null, null, startTime, endTime, exerciseType, km, step)
+                    } else {
+                        sched = Scheduler(0, trainingType, day, null, startTime, endTime, exerciseType, km, step)
+                    }
+                    runBlocking {
+                        scheduleDao.insert(sched)
+                    }
+
+                    val text = "Submitted!"
+                    val duration = Toast.LENGTH_SHORT
+                    val toast = Toast.makeText(context, text, duration)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.show()
                 }
+
+
+
+
+
             }
         })
         return view

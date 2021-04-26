@@ -8,20 +8,20 @@ import java.util.*
 @Entity(tableName = "cycling")
 data class Cycling(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
-    val date: Date,
-    val timeStart: LocalDateTime,
-    val timeEnd: LocalDateTime,
+    val id: Int = 0,
+    val date: Long,
+    val timeStart: Long,
+    val timeEnd: Long,
 )
 
 @Entity(tableName = "cycling_track", foreignKeys = arrayOf(ForeignKey(entity = Cycling::class,
-        parentColumns = arrayOf("id"),
+    parentColumns = arrayOf("id"),
     childColumns = arrayOf("idCycling"),
     onDelete = ForeignKey.CASCADE
-    )))
+)))
 data class CyclingTrack(
-    @PrimaryKey
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val latitude: Double,
     val longitude: Double,
     @ColumnInfo(index = true)
