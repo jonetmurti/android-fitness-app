@@ -8,11 +8,7 @@ import java.util.*
 @Entity(tableName = "cycling")
 data class Cycling(
     @PrimaryKey(autoGenerate = true)
-<<<<<<< HEAD
     val id: Int = 0,
-=======
-    val id: Int,
->>>>>>> f40a877dda59fe48edb54f1aea78529053434019
     val date: Long,
     val timeStart: Long,
     val timeEnd: Long,
