@@ -1,34 +1,36 @@
 package com.example.workoutapp.database
 
 import android.content.Context
-import androidx.annotation.WorkerThread
-import androidx.lifecycle.*
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import java.sql.Time
-import java.time.LocalDate
-import java.time.LocalTime
-import java.util.*
+
 
 
 @Dao
 interface SchedulerDao {
 
     @Insert
-    suspend fun insert(scheduler: Scheduler)
+    suspend fun insert(scheduler: Scheduler) : Long
     @Transaction
     @Query("DELETE FROM scheduler")
     suspend fun deleteAllSchedule()
 
-    @Query("SELECT * FROM scheduler")
-    fun getAllSchedule(): Flow<List<Scheduler>>
+    @Query("SELECT trainingType FROM scheduler WHERE id = :id ")
+    fun getTrainingType(id : Int) : String
+
+    @Query("SELECT targetKm FROM scheduler WHERE id = :id")
+    fun getTargetCycling(id: Int) : Int
+
+    @Query("SELECT targetStep FROM scheduler WHERE id = :id")
+    fun getTargetWalking(id: Int) : Int
+
+
 
 }
 
-@Database(entities = [Scheduler::class], version = 1)
+@Database(entities = [Scheduler::class], version = 2)
 abstract class SchedulerDatabase : RoomDatabase() {
     abstract val schedulerDao: SchedulerDao
 

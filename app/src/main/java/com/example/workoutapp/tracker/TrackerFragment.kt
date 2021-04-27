@@ -200,9 +200,6 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         fun newInstance() =
                 TrackerFragment()
     }
-<<<<<<< HEAD
-}
-=======
 
     private fun foregroundPermissionApproved(): Boolean{
         return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(activity as MainActivity,
@@ -327,7 +324,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         val appBarConfiguration = AppBarConfiguration(navController.graph)
 
         binding.toolbar
-            .setupWithNavController(navController, appBarConfiguration)
+                .setupWithNavController(navController, appBarConfiguration)
     }
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {
@@ -343,4 +340,3 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         }
     }
 }
->>>>>>> f40a877dda59fe48edb54f1aea78529053434019

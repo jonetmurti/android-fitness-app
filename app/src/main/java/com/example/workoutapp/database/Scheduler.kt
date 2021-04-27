@@ -14,8 +14,6 @@ data class Scheduler(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
         val type: Int,
-        val day: String?,
-        val date: Long?,
         val timeStart: Long,
         val timeEnd: Long,
         val trainingType: String,
