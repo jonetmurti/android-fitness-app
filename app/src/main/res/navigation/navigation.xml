@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/news_page">
+
+    <fragment
+        android:id="@+id/news_page"
+        android:name="com.example.workoutapp.news.NewsFragment"
+        android:label="fragment_news"
+        tools:layout="@layout/fragment_news" >
+        <action
+            android:id="@+id/action_news_page_to_webView_page"
+            app:destination="@id/webView_page" />
+    </fragment>
+    <fragment
+        android:id="@+id/scheduler_page"
+        android:name="com.example.workoutapp.scheduler.SchedulerFragment"
+        android:label="fragment_schedule"
+        tools:layout="@layout/fragment_schedule" />
+    <fragment
+        android:id="@+id/tracker_page"
+        android:name="com.example.workoutapp.tracker.TrackerFragment"
+        android:label="fragment_tracker"
+        tools:layout="@layout/fragment_tracker" >
+        <action
+            android:id="@+id/action_tracker_page_to_trackerResultFragment"
+            app:destination="@id/trackerResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/webView_page"
+        android:name="com.example.workoutapp.news.WebViewFragment"
+        android:label="fragment_web_view"
+        tools:layout="@layout/fragment_web_view" >
+        <argument
+            android:name="news"
+            app:argType="com.example.workoutapp.network.NetworkNews" />
+    </fragment>
+    <fragment
+        android:id="@+id/trackerResultFragment"
+        android:name="com.example.workoutapp.tracker.TrackerResultFragment"
+        android:label="fragment_tracker_result"
+        tools:layout="@layout/fragment_tracker_result" />
+</navigation>

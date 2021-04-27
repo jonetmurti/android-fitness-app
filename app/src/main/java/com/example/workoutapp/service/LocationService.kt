@@ -66,7 +66,6 @@ class LocationService : Service() {
                 currentIdTrack += 1
 
                 var cyclingTrack = CyclingTrack(
-                        id = currentIdTrack,
                         latitude = p0.lastLocation.latitude,
                         longitude = p0.lastLocation.longitude,
                         idCycling = currentId
@@ -96,7 +95,6 @@ class LocationService : Service() {
 
         currentId += 1
         var cycling = Cycling(
-                id = currentId,
                 date = System.currentTimeMillis(),
                 timeStart = System.currentTimeMillis(),
                 timeEnd = System.currentTimeMillis(),

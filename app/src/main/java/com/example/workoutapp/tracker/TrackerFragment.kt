@@ -3,6 +3,10 @@ package com.example.workoutapp.tracker
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +24,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.BuildConfig
 import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
@@ -43,7 +50,11 @@ private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
  * Use the [TrackerFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener, SensorEventListener {
+    private var sensorManager: SensorManager? = null
+    private var running = false
+    private var totalSteps = 0f
+    private var previousTotalSteps = 0f
 
     private var _binding: FragmentTrackerBinding? = null
     private val binding get() = _binding!!
@@ -108,10 +119,13 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
             if(enabled){
                 locationService?.unsubscribeToLocationUpdates()
                         ?: Log.d("Tracker Fragment", "Service not bound")
+                findNavController().navigate(TrackerFragmentDirections.actionTrackerPageToTrackerResultFragment())
             }else{
                 requestForegroundPermission()
             }
         }
+
+        sensorManager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         // Inflate the layout for this fragment
         return view
     }
@@ -131,6 +145,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         val serviceIntent = Intent(requireActivity(), LocationService::class.java)
         requireActivity().bindService(serviceIntent, locationServiceConnection, Context.BIND_AUTO_CREATE)
 
+        setupToolbar()
     }
 
     override fun onResume() {
@@ -200,7 +215,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         Log.d("Tracker Fragment", provideRationale.toString())
         if(provideRationale){
             Snackbar.make(
-                    activity!!.findViewById(R.id.activity_main),
+                    requireActivity().findViewById(R.id.drawerLayout),
                     R.string.permission_rationale,
                     Snackbar.LENGTH_LONG
             )
@@ -235,7 +250,7 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
                 else -> {
                     updateButtonState(false)
                     Snackbar.make(
-                            requireActivity().findViewById(R.id.activity_main),
+                            requireActivity().findViewById(R.id.drawerLayout),
                             "Permission was denied, but is needed for core functionality",
                             Snackbar.LENGTH_LONG
                     )
@@ -267,9 +282,52 @@ class TrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeLi
         }
     }
 
+    private fun saveData() {
+
+        // Shared Preferences will allow us to save
+        // and retrieve data in the form of key,value pair.
+        // In this function we will save data
+        val sharedPreferences = requireContext().getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
+
+        val editor = sharedPreferences.edit()
+        editor.putFloat("key1", previousTotalSteps)
+        editor.apply()
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+
+        // Calling the TextView that we made in activity_main.xml
+        // by the id given to that TextView
+//        var tv_stepsTaken = findViewById<TextView>(R.id.tv_stepsTaken)
+
+        if (running) {
+            totalSteps = event!!.values[0]
+
+            // Current steps are calculated by taking the difference of total steps
+            // and previous steps
+            val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+
+            // It will show the current steps to the user
+//            tv_stepsTaken.text = ("$currentSteps")
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        TODO("Not yet implemented")
+    }
+
     private fun logResultsToScreen(output: String) {
         val outputWithPreviousLogs = "$output\n${outputTextView.text}"
         outputTextView.text = outputWithPreviousLogs
+    }
+
+    private fun setupToolbar(){
+        val navController = findNavController()
+
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+
+        binding.toolbar
+            .setupWithNavController(navController, appBarConfiguration)
     }
 
     private inner class LocationBroadcastReceiver : BroadcastReceiver() {

@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.R
 import com.example.workoutapp.database.*
 import com.example.workoutapp.databinding.FragmentScheduleBinding
@@ -303,6 +306,21 @@ class SchedulerFragment : Fragment( ) {
             }
         })
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        setupToolbar()
+    }
+
+    private fun setupToolbar(){
+        val navController = findNavController()
+
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+
+        binding.toolbar
+            .setupWithNavController(navController, appBarConfiguration)
     }
 
      fun convertIntToString(num: Int): String{
