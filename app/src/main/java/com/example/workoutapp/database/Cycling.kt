@@ -15,10 +15,10 @@ data class Cycling(
 )
 
 @Entity(tableName = "cycling_track", foreignKeys = arrayOf(ForeignKey(entity = Cycling::class,
-        parentColumns = arrayOf("id"),
+    parentColumns = arrayOf("id"),
     childColumns = arrayOf("idCycling"),
     onDelete = ForeignKey.CASCADE
-    )))
+)))
 data class CyclingTrack(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
