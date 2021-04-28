@@ -19,15 +19,15 @@
         android:name="com.example.workoutapp.scheduler.SchedulerFragment"
         android:label="fragment_schedule"
         tools:layout="@layout/fragment_schedule" />
-    <fragment
-        android:id="@+id/tracker_page"
-        android:name="com.example.workoutapp.tracker.TrackerFragment"
-        android:label="fragment_tracker"
-        tools:layout="@layout/fragment_tracker" >
-        <action
-            android:id="@+id/action_tracker_page_to_trackerResultFragment"
-            app:destination="@id/trackerResultFragment" />
-    </fragment>
+<!--    <fragment-->
+<!--        android:id="@+id/tracker_page"-->
+<!--        android:name="com.example.workoutapp.tracker.TrackerFragment"-->
+<!--        android:label="fragment_tracker"-->
+<!--        tools:layout="@layout/fragment_tracker" >-->
+<!--        <action-->
+<!--            android:id="@+id/action_tracker_page_to_trackerResultFragment"-->
+<!--            app:destination="@id/trackerResultFragment" />-->
+<!--    </fragment>-->
     <fragment
         android:id="@+id/webView_page"
         android:name="com.example.workoutapp.news.WebViewFragment"
@@ -42,4 +42,17 @@
         android:name="com.example.workoutapp.tracker.TrackerResultFragment"
         android:label="fragment_tracker_result"
         tools:layout="@layout/fragment_tracker_result" />
+    <fragment
+        android:id="@+id/walking_page"
+        android:name="com.example.workoutapp.tracker.WalkingTrackerFragment"
+        android:label="fragment_walking_tracker"
+        tools:layout="@layout/fragment_walking_tracker" />
+    <fragment
+        android:id="@+id/cycling_page"
+        android:name="com.example.workoutapp.tracker.CyclingTrackerFragment"
+        android:label="CyclingTrackerFragment" >
+        <action
+            android:id="@+id/action_cycling_page_to_trackerResultFragment"
+            app:destination="@id/trackerResultFragment" />
+    </fragment>
 </navigation>

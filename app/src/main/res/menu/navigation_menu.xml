@@ -7,10 +7,15 @@
         android:icon="@drawable/ic_baseline_article_24"
         android:title="@string/news_text" />
     <item
-        android:id="@+id/tracker_page"
+        android:id="@+id/walking_page"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_timer_24"
-        android:title="@string/training_tracker_text" />
+        android:title="Walking" />
+    <item
+        android:id="@+id/cycling_page"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_timer_24"
+        android:title="Cycling" />
     <item
         android:id="@+id/history_page"
         android:enabled="true"

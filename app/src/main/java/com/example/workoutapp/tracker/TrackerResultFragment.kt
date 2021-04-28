@@ -66,7 +66,7 @@ class TrackerResultFragment : Fragment(), OnMapReadyCallback {
             .findFragmentById(R.id.maps_view) as SupportMapFragment?
 
         val dataSource = TrainingDatabase.getDatabase(requireContext().applicationContext).trackerDao
-        val viewModelFactory = TrackerViewModelFactory(dataSource)
+        val viewModelFactory = TrackerViewModelFactory(requireActivity().application, dataSource)
         val trackerViewModel = ViewModelProvider(
             this, viewModelFactory
         ).get(TrackerViewModel::class.java)
