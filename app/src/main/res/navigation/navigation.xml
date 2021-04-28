@@ -42,4 +42,22 @@
         android:name="com.example.workoutapp.tracker.TrackerResultFragment"
         android:label="fragment_tracker_result"
         tools:layout="@layout/fragment_tracker_result" />
+    <fragment
+        android:id="@+id/history_page"
+        android:name="com.example.workoutapp.history.CalendarFragment"
+        android:label="fragment_calendar"
+        tools:layout="@layout/fragment_calendar" >
+        <action
+            android:id="@+id/action_history_page_to_log_list_page"
+            app:destination="@id/log_list_page" />
+    </fragment>
+    <fragment
+        android:id="@+id/log_list_page"
+        android:name="com.example.workoutapp.history.LogListFragment"
+        android:label="fragment_log_list"
+        tools:layout="@layout/fragment_log_list" >
+        <argument
+            android:name="date"
+            app:argType="java.time.LocalDate" />
+    </fragment>
 </navigation>
