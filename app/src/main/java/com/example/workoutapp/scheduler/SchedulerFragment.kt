@@ -1,6 +1,7 @@
 package com.example.workoutapp.scheduler
 
 import android.app.AlarmManager
+import android.app.AlarmManager.*
 import android.app.DatePickerDialog
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -58,20 +59,19 @@ class SchedulerFragment : Fragment( ) {
 
 
     private lateinit var scheduleDao: SchedulerDao
-    private var schedules : List<Scheduler>? = null;
-    private var newSched : Scheduler? = null;
 
     // Data
     private var trainingType: Int = 1
     private var exerciseType: String = "Walking"
     private var day: String = "MONDAY"
-    private var time_start_hour: Int = Calendar.getInstance().get(Calendar.HOUR)
+    private var time_start_hour: Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     private var time_start_mins: Int = Calendar.getInstance().get(Calendar.MINUTE)
-    private var time_end_hour: Int = Calendar.getInstance().get(Calendar.HOUR)
+    private var time_end_hour: Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     private var time_end_mins: Int = Calendar.getInstance().get(Calendar.MINUTE)
     private var c_year: Int = Calendar.getInstance().get(Calendar.YEAR)
     private var c_month: Int = Calendar.getInstance().get(Calendar.MONTH) + 1
     private var c_date: Int = Calendar.getInstance().get(Calendar.DATE)
+    private var auto : Boolean = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,7 +90,12 @@ class SchedulerFragment : Fragment( ) {
         _binding = FragmentScheduleBinding.inflate(inflater, container, false)
         val view = binding.root
 
-
+        val switch : Switch = view.findViewById(R.id.switch1)
+        switch.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
+            override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+                auto = isChecked
+            }
+        })
         spTrainingType  = view.findViewById(R.id.training_type)
         val timeStartPicker : TextView = view.findViewById(R.id.timeStartPicker)
         val timeEndPicker : TextView = view.findViewById(R.id.timeEndPicker)
@@ -333,164 +338,85 @@ class SchedulerFragment : Fragment( ) {
                     var step: Int? = null
                     var km: Int? = null
                     var sched: Scheduler? = null
+                    var target : Int = 0
+
                     if (exerciseType == "Walking") {
                         step = (goalText.text.toString()).toInt()
+                        target = step
                     } else {
                         km = (goalText.text.toString()).toInt()
+                        target = km
                     }
                     val startCalendar: Calendar = Calendar.getInstance()
                     val endCalendar: Calendar = Calendar.getInstance()
-                    var alarmManager: AlarmManager =
-                        context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                    val nowCalendar: Calendar = Calendar.getInstance()
-                    nowCalendar.timeInMillis = System.currentTimeMillis()
 
                     if (trainingType == 1) {
-                        startCalendar.set(
-                            c_year,
-                            c_month - 1,
-                            c_date,
-                            time_start_hour,
-                            time_start_mins,
-                            0
-                        )
-                        endCalendar.set(c_year, c_month - 1, c_date, time_end_hour, time_end_mins,0)
+                        startCalendar.set(c_year, c_month - 1, c_date,
+                            time_start_hour, time_start_mins, 0)
+                        endCalendar.set(c_year, c_month - 1, c_date,
+                                time_end_hour, time_end_mins,0)
 
+                        val sched : Scheduler = Scheduler(0, trainingType, startCalendar.timeInMillis,
+                                endCalendar.timeInMillis, exerciseType, km, step )
+                        runBlocking {
+                            val id : Int = scheduleDao.insert(sched).toInt()
+                        }
+                        setAlarm(context!!, startCalendar.timeInMillis, endCalendar.timeInMillis,
+                                exerciseType, target, id, 1, auto)
 
                     } else if (trainingType == 2) {
-                        startCalendar.timeInMillis = System.currentTimeMillis()
                         startCalendar.set(Calendar.HOUR_OF_DAY, time_start_hour)
                         startCalendar.set(Calendar.MINUTE, time_start_mins)
                         startCalendar.set(Calendar.SECOND,0)
 
-                        endCalendar.timeInMillis = System.currentTimeMillis()
                         endCalendar.set(Calendar.HOUR_OF_DAY, time_end_hour)
                         endCalendar.set(Calendar.MINUTE, time_end_mins)
                         endCalendar.set(Calendar.SECOND,0)
+
+                        val sched : Scheduler = Scheduler(0, trainingType, startCalendar.timeInMillis,
+                                endCalendar.timeInMillis, exerciseType, km, step )
+                        runBlocking {
+                            val id : Int = scheduleDao.insert(sched).toInt()
+                        }
+
+
+
+                        if (startCalendar.timeInMillis < System.currentTimeMillis()) {
+                            setAlarm(context!!, startCalendar.timeInMillis + INTERVAL_DAY,
+                                    endCalendar.timeInMillis + INTERVAL_DAY,
+                                    exerciseType, target, id, 2, auto)
+                        } else {
+                            setAlarm(context!!, startCalendar.timeInMillis, endCalendar.timeInMillis,
+                                    exerciseType, target,id,2, auto)
+                        }
                     } else {
-                        startCalendar.timeInMillis = System.currentTimeMillis()
                         startCalendar.set(Calendar.DAY_OF_WEEK, DayOfWeek.valueOf(day).value + 1)
                         startCalendar.set(Calendar.HOUR_OF_DAY, time_start_hour)
                         startCalendar.set(Calendar.MINUTE, time_start_mins)
                         startCalendar.set(Calendar.SECOND,0)
 
-                        Log.d("cal",startCalendar.toString())
-                        Log.d("day",DayOfWeek.valueOf(day).value.toString())
-                        endCalendar.timeInMillis = System.currentTimeMillis()
                         endCalendar.set(Calendar.DAY_OF_WEEK, DayOfWeek.valueOf(day).value + 1)
                         endCalendar.set(Calendar.HOUR_OF_DAY, time_end_hour)
                         endCalendar.set(Calendar.MINUTE, time_end_mins)
                         endCalendar.set(Calendar.SECOND,0)
 
-                    }
-                    sched = Scheduler(
-                        0,
-                        trainingType,
-                        startCalendar.timeInMillis,
-                        endCalendar.timeInMillis,
-                        exerciseType,
-                        km,
-                        step
-                    )
-
-                    runBlocking {
-                        val id: Int = scheduleDao.insert(sched).toInt()
-                    }
-
-                    Log.d("alarmstart", startCalendar.toString())
-                    Log.d("alarmend", endCalendar.toString())
-                    var target : Int = 0
-                    if (exerciseType == "Walking"){
-                        if (step != null) {
-                            target = step
+                        val sched : Scheduler = Scheduler(0, trainingType, startCalendar.timeInMillis,
+                                endCalendar.timeInMillis, exerciseType, km, step )
+                        runBlocking {
+                            val id : Int = scheduleDao.insert(sched).toInt()
                         }
-                    } else {
-                        if (km != null) {
-                            target = km
-                        }
-                    }
-                    if (trainingType == 1) {
-                        setOneTimeAlarm(
-                                context!!,
-                                startCalendar.timeInMillis,
-                                exerciseType,
-                                target,
-                                true
-                            )
-                        setOneTimeAlarm(
-                            context!!,
-                            endCalendar.timeInMillis,
-                            exerciseType,
-                            target,
-                            false
-                        )
 
-                    } else if (trainingType == 2) {
+
                         if (startCalendar.timeInMillis < System.currentTimeMillis()) {
-                            setDailyAlarm(
-                                context!!,
-                                startCalendar.timeInMillis + 1000 * 60 * 60 * 24,
-                                exerciseType,
-                                target,
-                                true
-                            )
-                            setDailyAlarm(
-                                context!!,
-                                endCalendar.timeInMillis + 1000 * 60 * 60 * 24,
-                                exerciseType,
-                                target,
-                                false
-                            )
+                            setAlarm(context!!,
+                                    startCalendar.timeInMillis + (INTERVAL_DAY * 7),
+                                    endCalendar.timeInMillis + (INTERVAL_DAY * 7 ),exerciseType,
+                                    target, id,3, auto)
                         } else {
-                            setDailyAlarm(
-                                context!!,
-                                startCalendar.timeInMillis,
-                                exerciseType,
-                                target,
-                                true
-                            )
-                            setDailyAlarm(
-                                context!!,
-                                endCalendar.timeInMillis,
-                                exerciseType,
-                                target,
-                                false
-                            )
+                            setAlarm(context!!,
+                                    startCalendar.timeInMillis, endCalendar.timeInMillis,
+                                    exerciseType, target, id,3, auto)
                         }
-                    } else {
-                        if (startCalendar.timeInMillis < System.currentTimeMillis()) {
-                            setWeeklyAlarm(
-                                context!!,
-                                startCalendar.timeInMillis + 1000 * 60 * 60 * 24 * 7,
-                                exerciseType,
-                                target,
-                                true
-                            )
-                            setWeeklyAlarm(
-                                context!!,
-                                endCalendar.timeInMillis + 1000 * 60 * 60 * 24 * 7,
-                                exerciseType,
-                                target,
-                                false
-                            )
-                        } else {
-                            setWeeklyAlarm(
-                                context!!,
-                                startCalendar.timeInMillis,
-                                exerciseType,
-                                target,
-                                true
-                            )
-                            setWeeklyAlarm(
-                                context!!,
-                                endCalendar.timeInMillis,
-                                exerciseType,
-                                target,
-                                false
-                            )
-                        }
-
                     }
 
                     val text = "Submitted!"
@@ -528,84 +454,47 @@ class SchedulerFragment : Fragment( ) {
         }
         return str
     }
-    fun setOneTimeAlarm(context: Context, time: Long,exerciseType: String,target: Int, start: Boolean) {
-        val i = Intent(context, Alarm::class.java)
-        if (start == true){
-            i.putExtra("start", 1)
-        } else {
-            i.putExtra("start", 0)
-        }
-        i.putExtra("exercise", exerciseType)
-        i.putExtra("target",target)
+    fun setAlarm(context: Context, startTime: Long, endTime: Long,exerciseType: String,target: Int, id: Int, type: Int, auto: Boolean) {
+        val startIntent = Intent(context, Alarm::class.java)
+        startIntent.putExtra("exercise", exerciseType)
+        startIntent.putExtra("target",target)
+        startIntent.putExtra("id", id)
+        startIntent.putExtra("start",1)
+        startIntent.putExtra("startTime", startTime)
+        startIntent.putExtra("endTime", endTime)
+        startIntent.putExtra("type", type)
+        startIntent.putExtra("auto", auto)
+        Log.d("typeawal", type.toString())
+        var newcal = Calendar.getInstance()
+        newcal.timeInMillis = startTime
+        Log.d("startTime", newcal.toString() )
+        newcal.timeInMillis = endTime
+        Log.d("endTime", newcal.toString())
+        val endIntent = Intent(context, Alarm::class.java)
+        endIntent.putExtra("exercise", exerciseType)
+        endIntent.putExtra("target",target)
+        endIntent.putExtra("id", id)
 
-        var reqid : Int = System.currentTimeMillis().toInt()
-        if(!start){
-            reqid *= -1
-        }
+        var startReqId : Int = System.currentTimeMillis().toInt()
+        val startPendingIntent = PendingIntent.getBroadcast(context, startReqId, startIntent, PendingIntent.FLAG_ONE_SHOT)
 
-        val pi = PendingIntent.getBroadcast(context, reqid, i, PendingIntent.FLAG_ONE_SHOT)
+        var endReqId : Int = System.currentTimeMillis().toInt() + 10
+        val endPendingIntent = PendingIntent.getBroadcast(context, endReqId, endIntent, PendingIntent.FLAG_ONE_SHOT)
+
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        alarmManager.set(
-            AlarmManager.RTC_WAKEUP,
-            time,
-            pi
+        val startCalendar = Calendar.getInstance()
+        startCalendar.timeInMillis = startTime
+        val endCalendar = Calendar.getInstance()
+        endCalendar.timeInMillis = endTime
+        Log.d("startTime", startCalendar.toString())
+        Log.d("endTime", endCalendar.toString())
+        alarmManager.set(AlarmManager.RTC_WAKEUP,
+            startTime, startPendingIntent
         )
-    }
 
-    fun setDailyAlarm(
-        context: Context,
-        time: Long,exerciseType: String,target: Int, start: Boolean
-    ){
-        val i = Intent(context, Alarm::class.java)
-        if (start == true){
-            i.putExtra("start", 1)
-        } else {
-            i.putExtra("start", 0)
-        }
-        i.putExtra("exercise", exerciseType)
-        i.putExtra("target",target)
-        Log.d("alarm", time.toString())
-        Log.d("now", (System.currentTimeMillis()+10000).toString())
-        var reqid : Int = System.currentTimeMillis().toInt()
-        if(!start){
-            reqid *= -1
-        }
-        val pi = PendingIntent.getBroadcast(context, reqid, i, PendingIntent.FLAG_ONE_SHOT)
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            time,
-            1000 * 60 * 60 * 24,
-            pi
-        )
-    }
-
-    fun setWeeklyAlarm(
-        context: Context,
-        time: Long,exerciseType: String,target: Int, start: Boolean
-    ){
-        val i = Intent(context, Alarm::class.java)
-        if (start == true){
-            i.putExtra("start", 1)
-        } else {
-            i.putExtra("start", 0)
-        }
-        i.putExtra("exercise", exerciseType)
-        i.putExtra("target",target)
-        Log.d("alarm", time.toString())
-        Log.d("now", (System.currentTimeMillis()+10000).toString())
-        var reqid : Int = System.currentTimeMillis().toInt()
-        if(!start){
-            reqid *= -1
-        }
-        val pi = PendingIntent.getBroadcast(context, reqid, i, PendingIntent.FLAG_ONE_SHOT)
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            time,
-            1000 * 60 * 60 * 24 * 7,
-            pi
+        alarmManager.set(AlarmManager.RTC_WAKEUP,
+                endTime, endPendingIntent
         )
     }
     companion object {

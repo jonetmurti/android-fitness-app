@@ -26,6 +26,10 @@ interface TrackerDao{
     @Transaction
     @Query("SELECT * FROM cycling WHERE id = :id")
     fun getCyclingById(id: Int): LiveData<CyclingAndTrack>
+
+
+    @Query("SELECT * FROM cycling WHERE timeStart = :time")
+    fun getWalkingByTime(time: Long): LiveData<CyclingAndTrack>
 }
 
 @Dao
@@ -41,6 +45,9 @@ interface WalkingDao{
 
     @Query("SELECT * FROM walking WHERE id = :id")
     fun getWalkingById(id: Int): LiveData<Walking>
+
+    @Query("SELECT * FROM walking WHERE timeStart = :time")
+    fun getWalkingByTime(time: Long): LiveData<Walking>
 }
 
 @Database(entities = [Cycling::class, CyclingTrack::class, Walking::class], version = 4)
