@@ -9,6 +9,6 @@ data class Walking(
         val id: Int = 0,
         val date: Long,
         val timeStart: Long,
-        val timeEnd: Long,
-        val totalStep: Long,
+        var timeEnd: Long,
+        var totalStep: Long,
 )

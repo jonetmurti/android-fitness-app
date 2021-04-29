@@ -13,6 +13,9 @@
 
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
 
+    <uses-feature android:name="android.hardware.sensor.stepcounter" />
+    <uses-feature android:name="android.hardware.sensor.stepdetector" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -27,6 +30,11 @@
 
         <service
             android:name=".service.LocationService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <service
+            android:name=".service.WalkingService"
             android:enabled="true"
             android:exported="true"></service>
 
