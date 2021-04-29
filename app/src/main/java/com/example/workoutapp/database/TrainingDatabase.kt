@@ -34,10 +34,10 @@ interface WalkingDao{
     suspend fun insert(walking: Walking)
 
     @Update
-    fun update(walking: Walking)
+    suspend fun update(walking: Walking)
 
     @Query("SELECT * FROM walking ORDER BY timeStart DESC LIMIT 1")
-    fun getRecentWalking(): LiveData<Walking>
+    suspend fun getRecentWalking(): Walking?
 
     @Query("SELECT * FROM walking WHERE id = :id")
     fun getWalkingById(id: Int): LiveData<Walking>

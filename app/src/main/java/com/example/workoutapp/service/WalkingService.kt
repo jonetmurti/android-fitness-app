@@ -17,7 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
 import com.example.workoutapp.database.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 class WalkingService: Service(), SensorEventListener {
     private var sensorManager: SensorManager? = null
@@ -33,14 +33,15 @@ class WalkingService: Service(), SensorEventListener {
     private lateinit var walkingDao: WalkingDao
 
     private var currentSteps: Long = 0
-    private lateinit var walking: LiveData<Walking>
+    private var walking: Walking? = null
     private var stepSensor: Sensor? = null
 
     override fun onCreate() {
         super.onCreate()
 
         walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
-        walking = walkingDao.getRecentWalking()
+
+
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 //        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -140,14 +141,19 @@ class WalkingService: Service(), SensorEventListener {
         Log.d(TAG, "unsubscribeToLocationUpdates()")
         try{
 
-            Log.d("Walking Service", walking.value.toString())
+            Log.d("Walking Service", walking.toString())
             if(walkingDao == null){
                 walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
             }
-            walking.value?.let {
+            walking?.let {
+                val oldWalking = walking ?: return@let
                 Log.d("Walking Service", "Masuk sini woy")
-                walking.value!!.timeEnd = System.currentTimeMillis()
-                walkingDao.update(walking.value!!)
+                oldWalking.timeEnd = System.currentTimeMillis()
+
+                runBlocking {
+                    walkingDao.update(oldWalking)
+                }
+
             }
             stepSensor?.let {
                 sensorManager?.unregisterListener(this, it)
@@ -177,9 +183,12 @@ class WalkingService: Service(), SensorEventListener {
             intent.putExtra(EXTRA_WALKING, currentSteps)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
-            walking.value?.let {
+            walking?.let {
                 it.totalStep = currentSteps
-                walkingDao.update(it)
+                runBlocking {
+                    walkingDao.update(it)
+                }
+
             }
 
 
