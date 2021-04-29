@@ -59,8 +59,6 @@ class SchedulerFragment : Fragment( ) {
 
 
     private lateinit var scheduleDao: SchedulerDao
-    private var schedules : List<Scheduler>? = null;
-    private var newSched : Scheduler? = null;
 
     // Data
     private var trainingType: Int = 1
