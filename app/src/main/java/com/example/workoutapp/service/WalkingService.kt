@@ -30,14 +30,17 @@ class WalkingService: Service(), SensorEventListener {
     private val localBinder = LocalBinder()
     private lateinit var notificationManager: NotificationManager
 
+    private lateinit var walkingDao: WalkingDao
+
     private var currentSteps: Long = 0
-//    private var walking: LiveData<Walking> = walkingDao.getRecentWalking()
-//    private lateinit var walkingDao: WalkingDao
+    private lateinit var walking: LiveData<Walking>
+    private var stepSensor: Sensor? = null
 
     override fun onCreate() {
         super.onCreate()
 
-//        walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
+        walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
+        walking = walkingDao.getRecentWalking()
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 //        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -53,19 +56,21 @@ class WalkingService: Service(), SensorEventListener {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand()")
 
-        val walkingData = Walking(
+        var walkingData = Walking(
                 date = System.currentTimeMillis(),
                 timeStart = System.currentTimeMillis(),
                 timeEnd = System.currentTimeMillis(),
                 totalStep = 0
         )
 
-//        runBlocking {
-//            walkingDao.insert(walkingData)
-//        }
+        Log.d("Walking Service", walkingData.toString())
+        runBlocking {
+            walkingDao.insert(walkingData)
+            walking = walkingDao.getRecentWalking()
+        }
 
         val cancelWalkingTrackingFromNotification =
-             intent.getBooleanExtra(EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION, false)
+                intent.getBooleanExtra(EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION, false)
 
         Log.d(TAG, cancelWalkingTrackingFromNotification.toString())
         if(cancelWalkingTrackingFromNotification){
@@ -114,8 +119,16 @@ class WalkingService: Service(), SensorEventListener {
         SharedPreferenceUtil.saveWalkingTrackingPref(this, true)
 
         startService(Intent(applicationContext, WalkingService::class.java))
+        running = true
         previousTotalSteps = 0f
+
         try{
+            stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+
+            if (stepSensor != null) {
+                // Rate suitable for the user interface
+                sensorManager?.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
+            }
 //            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
         }catch (unlikely: SecurityException){
             SharedPreferenceUtil.saveWalkingTrackingPref(this, false)
@@ -126,16 +139,22 @@ class WalkingService: Service(), SensorEventListener {
     fun unsubscribeToWalkingUpdates(){
         Log.d(TAG, "unsubscribeToLocationUpdates()")
         try{
-            runBlocking {
-//                walkingDao.update(Walking(
-//                        walking.value!!.id,
-//                        walking.value!!.date,
-//                        walking.value!!.timeStart,
-//                        System.currentTimeMillis(),
-//                        walking.value!!.totalStep
-//                ))
+
+            Log.d("Walking Service", walking.value.toString())
+            if(walkingDao == null){
+                walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
             }
+            walking.value?.let {
+                Log.d("Walking Service", "Masuk sini woy")
+                walking.value!!.timeEnd = System.currentTimeMillis()
+                walkingDao.update(walking.value!!)
+            }
+            stepSensor?.let {
+                sensorManager?.unregisterListener(this, it)
+            }
+
             stopSelf()
+
             SharedPreferenceUtil.saveWalkingTrackingPref(this, false)
         }catch(unlikely: SecurityException){
             SharedPreferenceUtil.saveWalkingTrackingPref(this, true)
@@ -158,15 +177,12 @@ class WalkingService: Service(), SensorEventListener {
             intent.putExtra(EXTRA_WALKING, currentSteps)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
-            runBlocking {
-//                walkingDao.update(Walking(
-//                        walking.value!!.id,
-//                        walking.value!!.date,
-//                        walking.value!!.timeStart,
-//                        walking.value!!.timeEnd,
-//                        currentSteps
-//                ))
+            walking.value?.let {
+                it.totalStep = currentSteps
+                walkingDao.update(it)
             }
+
+
             if(serviceRunningInForeground){
                 notificationManager.notify(
                         NOTIFICATION_ID,
@@ -190,15 +206,15 @@ class WalkingService: Service(), SensorEventListener {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val notificationChannel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_DEFAULT
+                    NOTIFICATION_CHANNEL_ID, titleText, NotificationManager.IMPORTANCE_DEFAULT
             )
 
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
         val bigTextStyle = NotificationCompat.BigTextStyle()
-            .bigText(mainNotificationText)
-            .setBigContentTitle(titleText)
+                .bigText(mainNotificationText)
+                .setBigContentTitle(titleText)
 
         val launchActivityIntent = Intent(this, MainActivity::class.java)
 
@@ -206,33 +222,33 @@ class WalkingService: Service(), SensorEventListener {
         cancelIntent.putExtra(EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION, true)
 
         val servicePendingIntent = PendingIntent.getService(
-            this, 0, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT
+                this, 0, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val activityPendingIntent = PendingIntent.getActivity(
-            this, 0, launchActivityIntent, 0
+                this, 0, launchActivityIntent, 0
         )
 
         val notificationCompatBuilder = NotificationCompat.Builder(applicationContext,
-            NOTIFICATION_CHANNEL_ID
+                NOTIFICATION_CHANNEL_ID
         )
 
         return notificationCompatBuilder
-            .setStyle(bigTextStyle)
-            .setContentTitle(titleText)
-            .setContentText(mainNotificationText)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setOngoing(true)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .addAction(
-                R.drawable.ic_launcher_foreground, "Launch activity",
-                activityPendingIntent
-            )
-            .addAction(
-                R.drawable.ic_baseline_cancel_24, "Stop receiving steps updates",
-                servicePendingIntent
-            )
-            .build()
+                .setStyle(bigTextStyle)
+                .setContentTitle(titleText)
+                .setContentText(mainNotificationText)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setOngoing(true)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .addAction(
+                        R.drawable.ic_launcher_foreground, "Launch activity",
+                        activityPendingIntent
+                )
+                .addAction(
+                        R.drawable.ic_baseline_cancel_24, "Stop receiving steps updates",
+                        servicePendingIntent
+                )
+                .build()
     }
 
     inner class LocalBinder : Binder() {
@@ -246,12 +262,12 @@ class WalkingService: Service(), SensorEventListener {
         private const val PACKAGE_NAME = "com.example.workoutapp"
 
         internal const val ACTION_FOREGROUND_ONLY_WALKING_BROADCAST =
-            "$PACKAGE_NAME.action.FOREGROUND_ONLY_WALKING_BROADCAST"
+                "$PACKAGE_NAME.action.FOREGROUND_ONLY_WALKING_BROADCAST"
 
         internal const val EXTRA_WALKING = "$PACKAGE_NAME.extra.WALKING"
 
         private const val EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION =
-            "$PACKAGE_NAME.extra.CANCEL_WALKING_TRACKING_FROM_NOTIFICATION"
+                "$PACKAGE_NAME.extra.CANCEL_WALKING_TRACKING_FROM_NOTIFICATION"
 
         private const val NOTIFICATION_ID = 123456790
 

@@ -20,13 +20,33 @@ interface TrackerDao{
     suspend fun deleteAllCycling()
 
     @Transaction
-    @Query("SELECT * FROM cycling ORDER BY timeStart DESC")
+    @Query("SELECT * FROM cycling ORDER BY timeStart DESC LIMIT 1")
     fun getRecentCycling(): LiveData<CyclingAndTrack>
+
+    @Transaction
+    @Query("SELECT * FROM cycling WHERE id = :id")
+    fun getCyclingById(id: Int): LiveData<CyclingAndTrack>
 }
 
-@Database(entities = [Cycling::class, CyclingTrack::class], version = 2)
+@Dao
+interface WalkingDao{
+    @Insert
+    suspend fun insert(walking: Walking)
+
+    @Update
+    fun update(walking: Walking)
+
+    @Query("SELECT * FROM walking ORDER BY timeStart DESC LIMIT 1")
+    fun getRecentWalking(): LiveData<Walking>
+
+    @Query("SELECT * FROM walking WHERE id = :id")
+    fun getWalkingById(id: Int): LiveData<Walking>
+}
+
+@Database(entities = [Cycling::class, CyclingTrack::class, Walking::class], version = 4)
 abstract class TrainingDatabase : RoomDatabase() {
     abstract val trackerDao: TrackerDao
+    abstract val walkingDao: WalkingDao
 
     private class TrainingDatabaseCallback(
         private val scope: CoroutineScope
