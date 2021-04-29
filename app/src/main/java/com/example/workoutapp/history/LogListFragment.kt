@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.example.workoutapp.R
 import com.example.workoutapp.databinding.FragmentLogListBinding
 import java.time.LocalDate
@@ -45,10 +46,15 @@ class LogListFragment : Fragment() {
         _binding = FragmentLogListBinding.inflate(inflater, container, false)
         val view = binding.root
         val args = LogListFragmentArgs.fromBundle(requireArguments())
-
         date = args.date
-        // TODO: get cycling and walking data from db
+
+        val logDate: TextView = view.findViewById(R.id.logDate)
+        logDate.text = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
+        val trainingLogs: List<TrainingLog> = loadData()
         // TODO: create recycle view
+        val recycleView: RecyclerView = view.findViewById(R.id.logRecycleView)
+        recycleView.adapter = LogAdapter(trainingLogs)
+        recycleView.setHasFixedSize(true)
 
         return view
     }
@@ -86,5 +92,16 @@ class LogListFragment : Fragment() {
 
         binding.toolbar
             .setupWithNavController(navController, appBarConfiguration)
+    }
+
+    private fun loadData(): List<TrainingLog> {
+        // TODO: load training data from db
+        return listOf<TrainingLog>(
+                TrainingLog("zero"),
+                TrainingLog("one"),
+                TrainingLog("two"),
+                TrainingLog("three"),
+                TrainingLog("four")
+        )
     }
 }
