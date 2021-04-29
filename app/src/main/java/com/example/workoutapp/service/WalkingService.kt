@@ -31,13 +31,13 @@ class WalkingService: Service(), SensorEventListener {
     private lateinit var notificationManager: NotificationManager
 
     private var currentSteps: Long = 0
-    private var walking: LiveData<Walking> = walkingDao.getRecentWalking()
-    private lateinit var walkingDao: WalkingDao
+//    private var walking: LiveData<Walking> = walkingDao.getRecentWalking()
+//    private lateinit var walkingDao: WalkingDao
 
     override fun onCreate() {
         super.onCreate()
 
-        walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
+//        walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 //        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -60,12 +60,12 @@ class WalkingService: Service(), SensorEventListener {
                 totalStep = 0
         )
 
-        runBlocking {
-            walkingDao.insert(walkingData)
-        }
+//        runBlocking {
+//            walkingDao.insert(walkingData)
+//        }
 
         val cancelWalkingTrackingFromNotification =
-            intent.getBooleanExtra(EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION, false)
+             intent.getBooleanExtra(EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION, false)
 
         Log.d(TAG, cancelWalkingTrackingFromNotification.toString())
         if(cancelWalkingTrackingFromNotification){
@@ -127,13 +127,13 @@ class WalkingService: Service(), SensorEventListener {
         Log.d(TAG, "unsubscribeToLocationUpdates()")
         try{
             runBlocking {
-                walkingDao.update(Walking(
-                        walking.value!!.id,
-                        walking.value!!.date,
-                        walking.value!!.timeStart,
-                        System.currentTimeMillis(),
-                        walking.value!!.totalStep
-                ))
+//                walkingDao.update(Walking(
+//                        walking.value!!.id,
+//                        walking.value!!.date,
+//                        walking.value!!.timeStart,
+//                        System.currentTimeMillis(),
+//                        walking.value!!.totalStep
+//                ))
             }
             stopSelf()
             SharedPreferenceUtil.saveWalkingTrackingPref(this, false)
@@ -159,13 +159,13 @@ class WalkingService: Service(), SensorEventListener {
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
             runBlocking {
-                walkingDao.update(Walking(
-                        walking.value!!.id,
-                        walking.value!!.date,
-                        walking.value!!.timeStart,
-                        walking.value!!.timeEnd,
-                        currentSteps
-                ))
+//                walkingDao.update(Walking(
+//                        walking.value!!.id,
+//                        walking.value!!.date,
+//                        walking.value!!.timeStart,
+//                        walking.value!!.timeEnd,
+//                        currentSteps
+//                ))
             }
             if(serviceRunningInForeground){
                 notificationManager.notify(
