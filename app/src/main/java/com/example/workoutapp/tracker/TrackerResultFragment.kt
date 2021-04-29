@@ -1,6 +1,7 @@
 package com.example.workoutapp.tracker
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -114,6 +115,7 @@ class TrackerResultFragment : Fragment(), OnMapReadyCallback {
             .tilt(45f)
             .build()
 
+        Log.d("Tracker Result Fragment", listLatLng.toString())
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(googlePlex), 5000, null)
         _polyline = mMap.addPolyline(PolylineOptions()
             .addAll(listLatLng))
