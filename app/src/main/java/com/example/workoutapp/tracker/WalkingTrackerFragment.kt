@@ -277,6 +277,7 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
                     WalkingService.EXTRA_WALKING, 0
             )
 
+            Log.d("Walking Fragment", "Masuk intent nya")
             logResultsToScreen("Foreground steps: $step")
         }
     }
