@@ -220,6 +220,7 @@ class LocationService : Service() {
                 .setStyle(bigTextStyle)
                 .setContentTitle(titleText)
                 .setContentText(mainNotificationText)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setOngoing(true)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -253,7 +254,7 @@ class LocationService : Service() {
         private const val EXTRA_CANCEL_LOCATION_TRACKING_FROM_NOTIFICATION =
                 "$PACKAGE_NAME.extra.CANCEL_LOCATION_TRACKING_FROM_NOTIFICATION"
 
-        private const val NOTIFICATION_ID = 123456789
+        private const val NOTIFICATION_ID = 13579
 
         private const val NOTIFICATION_CHANNEL_ID = "Workout_channel_1"
     }

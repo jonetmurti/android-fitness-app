@@ -54,6 +54,7 @@ internal object SharedPreferenceUtil {
 
     const val KEY_FOREGROUND_ENABLED_LOCATION = "tracking_foreground_location"
     const val KEY_FOREGROUND_ENABLED_WALKING = "tracking_foreground_walking"
+    const val KEY_TOTAL_STEP = "total_step"
 
     /**
      * Returns true if requesting location updates, otherwise returns false.
@@ -86,5 +87,17 @@ internal object SharedPreferenceUtil {
                     context.getString(R.string.preference_file_key),
                     Context.MODE_PRIVATE).edit {
                 putBoolean(KEY_FOREGROUND_ENABLED_WALKING, requestingWalkingUpdates)
+            }
+
+    fun getTotalStepPref(context: Context): Float =
+            context.getSharedPreferences(
+                    context.getString(R.string.preference_file_key), Context.MODE_PRIVATE)
+                    .getFloat(KEY_TOTAL_STEP, 0f)
+
+    fun saveTotalStepPref(context: Context, steps: Float) =
+            context.getSharedPreferences(
+                    context.getString(R.string.preference_file_key),
+                    Context.MODE_PRIVATE).edit {
+                putFloat(KEY_TOTAL_STEP, steps)
             }
 }
