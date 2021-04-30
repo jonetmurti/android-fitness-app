@@ -1,6 +1,7 @@
 package com.example.workoutapp.history
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.workoutapp.R
+import com.example.workoutapp.database.TrainingDatabase
+import com.example.workoutapp.database.WalkingDao
 import com.example.workoutapp.databinding.FragmentLogListBinding
 import java.time.LocalDate
 
@@ -24,13 +27,14 @@ private const val ARG_PARAM2 = "param2"
  * Use the [LogListFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class LogListFragment : Fragment() {
+class LogListFragment : Fragment(), LogAdapter.LogClickListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private var _binding: FragmentLogListBinding? = null
     private val binding get() = _binding!!
     private lateinit var date: LocalDate
+    private lateinit var walkingDao: WalkingDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,16 +49,16 @@ class LogListFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentLogListBinding.inflate(inflater, container, false)
         val view = binding.root
+        walkingDao = TrainingDatabase.getDatabase(requireContext().applicationContext).walkingDao
         val args = LogListFragmentArgs.fromBundle(requireArguments())
         date = args.date
 
         val logDate: TextView = view.findViewById(R.id.logDate)
         logDate.text = "${date.dayOfMonth}/${date.monthValue}/${date.year}"
         val trainingLogs: List<TrainingLog> = loadData()
-        // TODO: create recycle view
-        val recycleView: RecyclerView = view.findViewById(R.id.logRecycleView)
-        recycleView.adapter = LogAdapter(trainingLogs)
-        recycleView.setHasFixedSize(true)
+
+        binding.logRecycleView.adapter = LogAdapter(this, trainingLogs)
+        binding.logRecycleView.setHasFixedSize(true)
 
         return view
     }
@@ -96,12 +100,24 @@ class LogListFragment : Fragment() {
 
     private fun loadData(): List<TrainingLog> {
         // TODO: load training data from db
+        val walkingByDate = walkingDao.getWalkingByDate(date.toEpochDay())
+        Log.d("LOGLIST", walkingByDate.toString())
         return listOf<TrainingLog>(
-                TrainingLog("zero"),
-                TrainingLog("one"),
-                TrainingLog("two"),
-                TrainingLog("three"),
-                TrainingLog("four")
+                TrainingLog(0, "cycling", 0, 1),
+                TrainingLog(1, "cycling", 0, 1),
+                TrainingLog(2, "walking", 0, 1),
+                TrainingLog(3, "walking", 0, 1),
+                TrainingLog(4, "cycling", 0, 1)
         )
+    }
+
+    override fun onClick(item: TrainingLog) {
+        if (item.type == "cycling") {
+            findNavController()
+                .navigate(LogListFragmentDirections.actionLogListPageToCyclingDetailPage(item.id))
+        } else {
+            findNavController()
+                .navigate(LogListFragmentDirections.actionLogListPageToWalkingDetailPage(item.id))
+        }
     }
 }

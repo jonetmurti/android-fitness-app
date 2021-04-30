@@ -1,21 +1,16 @@
 package com.example.workoutapp.history
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CalendarView
 import android.widget.TextView
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.R
-import com.example.workoutapp.databinding.FragmentCalendarBinding
-import java.time.LocalDate
-import java.util.*
+import com.example.workoutapp.databinding.FragmentWalkingDetailBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,45 +19,36 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [CalendarFragment.newInstance] factory method to
+ * Use the [WalkingDetailFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class CalendarFragment : Fragment() {
+class WalkingDetailFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private var _binding: FragmentCalendarBinding? = null
+    private var _binding: FragmentWalkingDetailBinding? = null
     private val binding get() = _binding!!
-    private lateinit var logListButton: Button
-    private lateinit var calendarView: CalendarView
-    private lateinit var date: LocalDate
-    private lateinit var calendar: Calendar
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentCalendarBinding.inflate(inflater, container, false)
+        _binding = FragmentWalkingDetailBinding.inflate(inflater, container, false)
         val view = binding.root
+        val args = WalkingDetailFragmentArgs.fromBundle(requireArguments())
 
-        calendar = Calendar.getInstance()
-        date = LocalDate.of(
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH) + 1,
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-
-        calendarView = view.findViewById(R.id.calendarView)
-        calendarView.setOnDateChangeListener { _, year: Int, month: Int, day: Int  ->
-            date = LocalDate.of(year, month + 1, day)
-//            calendar.set(year, month, day)
-//            calendar = Date(3)
-        }
-
-        logListButton = binding.logListBtn
-        logListButton.setOnClickListener {
-            findNavController()
-                .navigate(CalendarFragmentDirections.actionHistoryPageToLogListPage(date))
-        }
+        // TODO: Get walking data from db based on id
+        // TODO: Set view related stuff
+        view.findViewById<TextView>(R.id.walkingIdText).text = args.id.toString()
 
         return view
     }
@@ -79,12 +65,12 @@ class CalendarFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment CalendarFragment.
+         * @return A new instance of fragment WalkingDetailFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance() =
-                CalendarFragment()
+            WalkingDetailFragment()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

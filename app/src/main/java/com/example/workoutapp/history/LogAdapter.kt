@@ -1,25 +1,41 @@
 package com.example.workoutapp.history
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.workoutapp.R
+import com.example.workoutapp.databinding.LogItemBinding
 
 class LogAdapter(
+        private val listener: LogClickListener,
         private val logs: List<TrainingLog>
 ) : RecyclerView.Adapter<LogAdapter.LogViewHolder>() {
 
-    class LogViewHolder(private val view: View): RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.trainingTypeText)
+    class LogViewHolder(
+        private val binding: LogItemBinding,
+        private val listener: LogClickListener
+    ): RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: TrainingLog) {
+            binding.trainingTypeText.text = item.type.capitalize()
+            // TODO: change time start and time end text
+
+            binding.root.setOnClickListener {
+                listener.onClick(item)
+            }
+        }
+
+        companion object{
+            fun from(parent: ViewGroup, listener: LogClickListener): LogViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = LogItemBinding.inflate(layoutInflater, parent, false)
+                return LogViewHolder(binding, listener)
+            }
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LogViewHolder {
-        val adapterLayout = LayoutInflater.from(parent.context)
-                .inflate(R.layout.log_item, parent, false)
-
-        return LogViewHolder(adapterLayout)
+        return LogViewHolder.from(parent, listener)
     }
 
     override fun getItemCount(): Int {
@@ -27,8 +43,10 @@ class LogAdapter(
     }
 
     override fun onBindViewHolder(holder: LogViewHolder, position: Int) {
-        val item = logs[position]
-        holder.textView.text = "Cycling"
+        holder.bind(logs[position])
     }
 
+    interface LogClickListener {
+        fun onClick(item: TrainingLog)
+    }
 }

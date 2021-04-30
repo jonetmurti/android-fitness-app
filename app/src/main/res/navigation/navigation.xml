@@ -59,6 +59,12 @@
         <argument
             android:name="date"
             app:argType="java.time.LocalDate" />
+        <action
+            android:id="@+id/action_log_list_page_to_walking_detail_page"
+            app:destination="@id/walking_detail_page" />
+        <action
+            android:id="@+id/action_log_list_page_to_cycling_detail_page"
+            app:destination="@id/cycling_detail_page" />
     </fragment>
     <fragment
         android:id="@+id/walking_page"
@@ -72,5 +78,23 @@
         <action
             android:id="@+id/action_cycling_page_to_trackerResultFragment"
             app:destination="@id/trackerResultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/walking_detail_page"
+        android:name="com.example.workoutapp.history.WalkingDetailFragment"
+        android:label="fragment_walking_detail"
+        tools:layout="@layout/fragment_walking_detail" >
+        <argument
+            android:name="id"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/cycling_detail_page"
+        android:name="com.example.workoutapp.history.CyclingDetailFragment"
+        android:label="fragment_cycling_detail"
+        tools:layout="@layout/fragment_cycling_detail" >
+        <argument
+            android:name="id"
+            app:argType="integer" />
     </fragment>
 </navigation>
