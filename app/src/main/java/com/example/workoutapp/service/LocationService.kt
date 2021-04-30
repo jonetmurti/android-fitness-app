@@ -17,10 +17,7 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
-import com.example.workoutapp.database.Cycling
-import com.example.workoutapp.database.CyclingTrack
-import com.example.workoutapp.database.TrackerDao
-import com.example.workoutapp.database.TrainingDatabase
+import com.example.workoutapp.database.*
 import com.google.android.gms.common.util.SharedPreferencesUtils
 import com.google.android.gms.location.*
 import kotlinx.coroutines.runBlocking
@@ -41,6 +38,7 @@ class LocationService : Service() {
     private var currentId: Int = 0
     private var currentIdTrack: Int = 0
 
+    private var cycling: Cycling? = null
     private var currentLocation: Location? = null
 
     override fun onCreate() {
@@ -94,16 +92,16 @@ class LocationService : Service() {
         Log.d(TAG, "onStartCommand()")
 
         currentId += 1
-        var cycling = Cycling(
+        var cyclingData = Cycling(
                 date = System.currentTimeMillis(),
                 timeStart = System.currentTimeMillis(),
                 timeEnd = System.currentTimeMillis(),
         )
 
         runBlocking {
-            trackerDao.insert(cycling)
+            trackerDao.insert(cyclingData)
+            cycling = trackerDao.getRecentCyclingOnly()
         }
-
         val cancelLocationTrackingFromNotification =
                 intent.getBooleanExtra(EXTRA_CANCEL_LOCATION_TRACKING_FROM_NOTIFICATION, false)
 
@@ -170,6 +168,16 @@ class LocationService : Service() {
             removeTask.addOnCompleteListener { task ->
                 if(task.isSuccessful){
                     Log.d(TAG, "Location Callback Removed.")
+                    cycling?.let {
+                        val oldCycling = cycling ?: return@let
+                        Log.d("Walking Service", "Masuk sini woy")
+                        oldCycling.timeEnd = System.currentTimeMillis()
+
+                        runBlocking {
+                            trackerDao.update(oldCycling)
+                        }
+
+                    }
                     stopSelf()
                 }else{
                     Log.d(TAG, "Failed to remove Location Callback.")

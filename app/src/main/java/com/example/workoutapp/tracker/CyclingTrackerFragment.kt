@@ -105,7 +105,12 @@ class CyclingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
             if(enabled){
                 locationService?.unsubscribeToLocationUpdates()
                     ?: Log.d("Tracker Fragment", "Service not bound")
-                findNavController().navigate(CyclingTrackerFragmentDirections.actionCyclingPageToTrackerResultFragment())
+
+                val id = trackerViewModel.tracks.value?.cycling?.id
+                id?.let {
+                    findNavController().navigate(CyclingTrackerFragmentDirections.actionCyclingPageToCyclingDetailPage(id))
+                }
+
             }else{
                 requestForegroundPermission()
             }

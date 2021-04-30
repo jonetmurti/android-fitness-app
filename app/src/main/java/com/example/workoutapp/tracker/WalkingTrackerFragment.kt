@@ -22,12 +22,14 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.BuildConfig
 import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
+import com.example.workoutapp.database.TrainingDatabase
 import com.example.workoutapp.databinding.FragmentWalkingTrackerBinding
 import com.example.workoutapp.service.LocationService
 import com.example.workoutapp.service.SharedPreferenceUtil
 import com.example.workoutapp.service.WalkingService
 import com.example.workoutapp.service.toText
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.runBlocking
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -94,7 +96,15 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
             if(enabled){
                 walkingService?.unsubscribeToWalkingUpdates()
                         ?: Log.d("Tracker Fragment", "Service not bound")
-//                findNavController().navigate(CyclingTrackerFragmentDirections.actionCyclingPageToTrackerResultFragment())
+                runBlocking {
+                    val walkingDao = TrainingDatabase.getDatabase(requireContext().applicationContext).walkingDao
+                    val walk = walkingDao.getRecentWalking()
+                    walk?.let {
+                        findNavController().navigate(WalkingTrackerFragmentDirections.actionWalkingPageToWalkingDetailPage(walk.id))
+                    }
+
+                }
+
             }else{
                 requestForegroundPermission()
             }
