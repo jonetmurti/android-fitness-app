@@ -338,4 +338,5 @@ class CyclingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
             }
         }
     }
+
 }

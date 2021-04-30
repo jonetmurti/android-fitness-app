@@ -18,5 +18,6 @@ data class Scheduler(
         val timeEnd: Long,
         val trainingType: String,
         val targetKm: Int?,
-        val targetStep: Int?
+        val targetStep: Int?,
+        val auto: Int
 )

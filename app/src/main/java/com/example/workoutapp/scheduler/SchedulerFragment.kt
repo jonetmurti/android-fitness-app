@@ -357,7 +357,12 @@ class SchedulerFragment : Fragment( ) {
                                 time_end_hour, time_end_mins,0)
 
                         val sched : Scheduler = Scheduler(0, trainingType, startCalendar.timeInMillis,
-                                endCalendar.timeInMillis, exerciseType, km, step )
+                                endCalendar.timeInMillis, exerciseType, km, step,
+                                if (auto) {
+                                    1
+                                } else {
+                                    0
+                                })
                         runBlocking {
                             val id : Int = scheduleDao.insert(sched).toInt()
                         }
@@ -374,7 +379,12 @@ class SchedulerFragment : Fragment( ) {
                         endCalendar.set(Calendar.SECOND,0)
 
                         val sched : Scheduler = Scheduler(0, trainingType, startCalendar.timeInMillis,
-                                endCalendar.timeInMillis, exerciseType, km, step )
+                                endCalendar.timeInMillis, exerciseType, km, step,
+                                if (auto) {
+                                        1
+                                    } else {
+                                        0
+                                    } )
                         runBlocking {
                             val id : Int = scheduleDao.insert(sched).toInt()
                         }
@@ -401,7 +411,12 @@ class SchedulerFragment : Fragment( ) {
                         endCalendar.set(Calendar.SECOND,0)
 
                         val sched : Scheduler = Scheduler(0, trainingType, startCalendar.timeInMillis,
-                                endCalendar.timeInMillis, exerciseType, km, step )
+                                endCalendar.timeInMillis, exerciseType, km, step,
+                                if (auto) {
+                                    1
+                                } else {
+                                    0
+                                } )
                         runBlocking {
                             val id : Int = scheduleDao.insert(sched).toInt()
                         }
@@ -474,6 +489,8 @@ class SchedulerFragment : Fragment( ) {
         endIntent.putExtra("exercise", exerciseType)
         endIntent.putExtra("target",target)
         endIntent.putExtra("id", id)
+        endIntent.putExtra("auto", auto)
+
 
         var startReqId : Int = System.currentTimeMillis().toInt()
         val startPendingIntent = PendingIntent.getBroadcast(context, startReqId, startIntent, PendingIntent.FLAG_ONE_SHOT)

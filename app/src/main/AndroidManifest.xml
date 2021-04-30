@@ -39,6 +39,12 @@
             android:enabled="true"
             android:exported="true"></service>
 
+        <service android:name=".service.AutoCyclingTrack"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service android:name=".service.AutoWalkingTrack"
+            android:enabled="true"
+            android:exported="true"></service>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

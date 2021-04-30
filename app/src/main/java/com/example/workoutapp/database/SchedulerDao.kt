@@ -25,12 +25,14 @@ interface SchedulerDao {
 
     @Query("SELECT targetStep FROM scheduler WHERE id = :id")
     fun getTargetWalking(id: Int) : Int
+    @Query("SELECT COUNT(*) FROM scheduler WHERE (:startTime >= timeStart and :startTime <= timeEnd and auto = 1) or (:endTime >= timeStart and :endTime <= timeEnd and auto = 1) ")
+    fun checkActiveTracking(startTime: Long, endTime: Long) : Int
 
 
 
 }
 
-@Database(entities = [Scheduler::class], version = 2)
+@Database(entities = [Scheduler::class], version = 4)
 abstract class SchedulerDatabase : RoomDatabase() {
     abstract val schedulerDao: SchedulerDao
 
