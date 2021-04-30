@@ -45,9 +45,29 @@ Saat waktu sudah sesuai jadwal, pengguna akan ditampilkan notifikasi sesuai tipe
 1. Retrofit : Digunakan untuk pemanggilan API.
 2. RxJava : Digunakan untuk handling response dari pemanggilan API yang telah dilakukan menggunakan retrofit.
 3. Glide : Digunakan untuk menampilkan gambar dari sport news.
-4. Room : Digunakan untuk menyimpan training history dan schedule.
+
 
 ## Screenshot Aplikasi
+## Screenshot
+![sidenav.png](screenshots/sidenav.png)
+![sportnews.png](screenshots/sportnews.png)
+![calendarhistory.png](screenshots/calendarhistory.png)
+![cyclingtrack.png](screenshots/cyclingtrack.png)
+![cyclingtrackongoing.png](screenshots/cyclingtrackongoing.png)
+![cyclingtrackonresult.png](screenshots/cyclingtrackresult.png)
+![locationnotif.png](screenshots/locationnotif.png)
+![walkingtrack.png](screenshots/walkingtrack.png)
+![walkingtrackongoing.png](screenshots/walkingtrackongoing.png)
+![walkingtrackonresult.png](screenshots/walkingtrackresult.png)
+![historydetail.png](screenshots/historydetail.png)
+![schedulecycling.png](screenshots/schedulecycling.png)
+![schedulewalking.png](screenshots/schedulewalking.png)
+![schedulesubmit.png](screenshots/schedulesubmit.png)
+![scheduledenied.png](screenshots/scheduledenied.png)
+![schedulenotif.png](screenshots/schedulenotif.png)
+
+
+
 
 ## Pembagian Kerja Anggota Kelompok
 1. Yahya - 13518029 : Sport News, Tracking Walking & Cycling, Menampilkan maps pada detail cycling
