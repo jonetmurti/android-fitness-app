@@ -1,18 +1,14 @@
 package com.example.workoutapp.service
 
-import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.workoutapp.MainActivity
@@ -21,7 +17,6 @@ import com.example.workoutapp.database.Cycling
 import com.example.workoutapp.database.CyclingTrack
 import com.example.workoutapp.database.TrackerDao
 import com.example.workoutapp.database.TrainingDatabase
-import com.google.android.gms.common.util.SharedPreferencesUtils
 import com.google.android.gms.location.*
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
@@ -74,6 +69,7 @@ class LocationService : Service() {
                 runBlocking {
                     trackerDao.insert(cyclingTrack)
                 }
+                Log.d("eresult","result")
 
                 val intent = Intent(ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST)
                 intent.putExtra(EXTRA_LOCATION, currentLocation)
@@ -90,6 +86,7 @@ class LocationService : Service() {
         }
     }
 
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand()")
 
@@ -103,6 +100,7 @@ class LocationService : Service() {
         runBlocking {
             trackerDao.insert(cycling)
         }
+        Log.d("result","reee")
 
         val cancelLocationTrackingFromNotification =
                 intent.getBooleanExtra(EXTRA_CANCEL_LOCATION_TRACKING_FROM_NOTIFICATION, false)
@@ -177,10 +175,25 @@ class LocationService : Service() {
             }
 
             SharedPreferenceUtil.saveLocationTrackingPref(this, false)
-        }catch(unlikely: SecurityException){
+        }catch (unlikely: SecurityException){
             SharedPreferenceUtil.saveLocationTrackingPref(this, true)
             Log.e(TAG, "Lost location permissions. Couldn't remove updates. $unlikely")
         }
+
+        val intent = Intent(applicationContext, Alarm::class.java)
+        intent.putExtra("start", 0)
+        intent.putExtra("exercise", "Cycling")
+
+        val pendingIntent = PendingIntent.getBroadcast(applicationContext, System.currentTimeMillis().toInt(), intent, PendingIntent.FLAG_ONE_SHOT)
+
+
+        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.set(
+                AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis(),
+                pendingIntent
+
+        )
     }
 
     private fun generateNotification(location: Location?): Notification {
