@@ -154,9 +154,10 @@ class CyclingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
 
         trackerViewModel.tracks.observe(viewLifecycleOwner, Observer {
             if(it == null){
-                binding.tvDistance.text = "0 KM"
+                binding.tvDistance.text = "Distance : 0 KM"
             }else{
-                binding.tvDistance.text = calculateTotalDistance(it).toString() + " KM"
+                val distance = "%.4f".format(calculateTotalDistance(it))
+                binding.tvDistance.text = "Distance : " + distance.toString() + " KM"
             }
         })
         val current = LocalDateTime.now()
@@ -308,8 +309,7 @@ class CyclingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
     }
 
     private fun logResultsToScreen(output: String) {
-        val outputWithPreviousLogs = "$output\n${outputTextView.text}"
-        outputTextView.text = outputWithPreviousLogs
+        outputTextView.text = output
     }
 
     private fun getKeyEnabled(): String{
@@ -334,7 +334,7 @@ class CyclingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
             )
 
             if (location != null) {
-                logResultsToScreen("Foreground location: ${location.toText()}")
+                logResultsToScreen("Location :\n ${location.toText()}")
             }
         }
     }

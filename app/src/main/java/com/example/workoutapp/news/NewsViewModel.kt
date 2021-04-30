@@ -6,7 +6,7 @@ import com.example.workoutapp.network.NetworkNews
 import java.lang.IllegalArgumentException
 
 class NewsViewModel(application: Application): AndroidViewModel(application) {
-    lateinit var _news: MutableLiveData<List<NetworkNews>>
+    var _news: MutableLiveData<List<NetworkNews>> = MutableLiveData(listOf())
     val news: LiveData<List<NetworkNews>>
         get() =  _news
 

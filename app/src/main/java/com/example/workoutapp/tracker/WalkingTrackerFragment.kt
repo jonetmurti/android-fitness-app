@@ -162,9 +162,9 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
 
     private fun updateButtonState(trackingLocation: Boolean){
         if(trackingLocation){
-            binding.btnTracking.text = "Stop receiving location"
+            binding.btnTracking.text = "Stop counting steps"
         }else{
-            binding.btnTracking.text = "Start receiving location"
+            binding.btnTracking.text = "Start counting steps"
         }
     }
 
@@ -275,8 +275,7 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
     }
 
     private fun logResultsToScreen(output: String) {
-        val outputWithPreviousLogs = "$output\n${binding.tvStep.text}"
-        binding.tvStep.text = outputWithPreviousLogs
+        binding.tvStep.text = output
     }
 
 

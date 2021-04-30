@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/news_page"
         android:name="com.example.workoutapp.news.NewsFragment"
-        android:label="fragment_news"
+        android:label="Sport News"
         tools:layout="@layout/fragment_news" >
         <action
             android:id="@+id/action_news_page_to_webView_page"
@@ -17,7 +17,7 @@
     <fragment
         android:id="@+id/scheduler_page"
         android:name="com.example.workoutapp.scheduler.SchedulerFragment"
-        android:label="fragment_schedule"
+        android:label="Schedule"
         tools:layout="@layout/fragment_schedule" />
 <!--    <fragment-->
 <!--        android:id="@+id/tracker_page"-->
@@ -31,7 +31,7 @@
     <fragment
         android:id="@+id/webView_page"
         android:name="com.example.workoutapp.news.WebViewFragment"
-        android:label="fragment_web_view"
+        android:label="Sport News"
         tools:layout="@layout/fragment_web_view" >
         <argument
             android:name="news"
@@ -40,7 +40,7 @@
     <fragment
         android:id="@+id/history_page"
         android:name="com.example.workoutapp.history.CalendarFragment"
-        android:label="fragment_calendar"
+        android:label="History"
         tools:layout="@layout/fragment_calendar" >
         <action
             android:id="@+id/action_history_page_to_log_list_page"
@@ -49,7 +49,7 @@
     <fragment
         android:id="@+id/log_list_page"
         android:name="com.example.workoutapp.history.LogListFragment"
-        android:label="fragment_log_list"
+        android:label="History"
         tools:layout="@layout/fragment_log_list" >
         <argument
             android:name="calendar"
@@ -64,7 +64,7 @@
     <fragment
         android:id="@+id/walking_page"
         android:name="com.example.workoutapp.tracker.WalkingTrackerFragment"
-        android:label="fragment_walking_tracker"
+        android:label="Walking"
         tools:layout="@layout/fragment_walking_tracker" >
         <action
             android:id="@+id/action_walking_page_to_walking_detail_page"
@@ -73,7 +73,7 @@
     <fragment
         android:id="@+id/cycling_page"
         android:name="com.example.workoutapp.tracker.CyclingTrackerFragment"
-        android:label="CyclingTrackerFragment"
+        android:label="Cycling"
         tools:layout="@layout/fragment_cycling_tracker">
         <action
             android:id="@+id/action_cycling_page_to_cycling_detail_page"
@@ -82,7 +82,7 @@
     <fragment
         android:id="@+id/walking_detail_page"
         android:name="com.example.workoutapp.history.WalkingDetailFragment"
-        android:label="fragment_walking_detail"
+        android:label="Walking"
         tools:layout="@layout/fragment_walking_detail" >
         <argument
             android:name="id"
@@ -91,7 +91,7 @@
     <fragment
         android:id="@+id/cycling_detail_page"
         android:name="com.example.workoutapp.history.CyclingDetailFragment"
-        android:label="fragment_cycling_detail"
+        android:label="Cycling"
         tools:layout="@layout/fragment_cycling_detail" >
         <argument
             android:name="id"

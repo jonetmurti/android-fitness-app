@@ -1,6 +1,7 @@
 package com.example.workoutapp.news
 
 import android.content.Context
+import android.content.res.Configuration
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentActivity
@@ -16,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
@@ -82,6 +85,10 @@ class NewsFragment : Fragment(), NewsAdapter.NewsClickListener {
         newsAdapter = NewsAdapter(this)
         binding.recyclerViewNews.adapter = newsAdapter
         binding.recyclerViewNews.layoutManager = LinearLayoutManager(context)
+
+        viewModel.news.observe(viewLifecycleOwner, Observer {
+            newsAdapter.submitList(it)
+        })
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -110,13 +117,12 @@ class NewsFragment : Fragment(), NewsAdapter.NewsClickListener {
         _binding = null
     }
 
-
-    fun callApi(){
+    private fun callApi(){
         mCompositeDisposable?.add(NetworkService.newsService.getNews("id", "sports", NetworkService.API_KEY)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe ({ items ->
-                    newsAdapter.submitList(items.articles)
+                    viewModel.insertNews(items.articles)
                 },{}))
     }
 
