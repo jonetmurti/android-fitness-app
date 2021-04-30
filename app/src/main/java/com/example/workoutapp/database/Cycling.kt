@@ -11,7 +11,7 @@ data class Cycling(
     val id: Int = 0,
     val date: Long,
     val timeStart: Long,
-    val timeEnd: Long,
+    var timeEnd: Long,
 )
 
 @Entity(tableName = "cycling_track", foreignKeys = arrayOf(ForeignKey(entity = Cycling::class,

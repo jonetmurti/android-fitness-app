@@ -154,6 +154,24 @@ class WalkingService: Service(), SensorEventListener {
             stopSelf()
 
             SharedPreferenceUtil.saveWalkingTrackingPref(this, false)
+
+            val intent = Intent(applicationContext, Alarm::class.java)
+            intent.putExtra("start", 0)
+            intent.putExtra("exercise", "Walking")
+            intent.putExtra("result", totalSteps)
+
+            val pendingIntent = PendingIntent.getBroadcast(applicationContext, System.currentTimeMillis().toInt(), intent, PendingIntent.FLAG_ONE_SHOT)
+
+
+            val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    System.currentTimeMillis(),
+                    pendingIntent
+
+            )
+
+
         }catch(unlikely: SecurityException){
             SharedPreferenceUtil.saveWalkingTrackingPref(this, true)
             Log.e(TAG, "Lost Walking permissions. Couldn't remove updates. $unlikely")

@@ -38,11 +38,6 @@
             app:argType="com.example.workoutapp.network.NetworkNews" />
     </fragment>
     <fragment
-        android:id="@+id/trackerResultFragment"
-        android:name="com.example.workoutapp.tracker.TrackerResultFragment"
-        android:label="fragment_tracker_result"
-        tools:layout="@layout/fragment_tracker_result" />
-    <fragment
         android:id="@+id/history_page"
         android:name="com.example.workoutapp.history.CalendarFragment"
         android:label="fragment_calendar"
@@ -70,14 +65,19 @@
         android:id="@+id/walking_page"
         android:name="com.example.workoutapp.tracker.WalkingTrackerFragment"
         android:label="fragment_walking_tracker"
-        tools:layout="@layout/fragment_walking_tracker" />
+        tools:layout="@layout/fragment_walking_tracker" >
+        <action
+            android:id="@+id/action_walking_page_to_walking_detail_page"
+            app:destination="@id/walking_detail_page" />
+    </fragment>
     <fragment
         android:id="@+id/cycling_page"
         android:name="com.example.workoutapp.tracker.CyclingTrackerFragment"
-        android:label="CyclingTrackerFragment" >
+        android:label="CyclingTrackerFragment"
+        tools:layout="@layout/fragment_cycling_tracker">
         <action
-            android:id="@+id/action_cycling_page_to_trackerResultFragment"
-            app:destination="@id/trackerResultFragment" />
+            android:id="@+id/action_cycling_page_to_cycling_detail_page"
+            app:destination="@id/cycling_detail_page" />
     </fragment>
     <fragment
         android:id="@+id/walking_detail_page"

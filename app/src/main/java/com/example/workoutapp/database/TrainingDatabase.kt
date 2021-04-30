@@ -13,6 +13,9 @@ interface TrackerDao{
     @Insert
     suspend fun insert(cycling: Cycling)
 
+    @Update
+    suspend fun update(cycling: Cycling)
+
     @Insert
     suspend fun insert(track: CyclingTrack)
 
@@ -23,6 +26,10 @@ interface TrackerDao{
     @Transaction
     @Query("SELECT * FROM cycling ORDER BY timeStart DESC LIMIT 1")
     fun getRecentCycling(): LiveData<CyclingAndTrack>
+
+    @Transaction
+    @Query("SELECT * FROM cycling")
+    suspend fun getRecentCyclingOnly(): Cycling?
 
     @Transaction
     @Query("SELECT * FROM cycling WHERE id = :id")
@@ -60,7 +67,7 @@ interface WalkingDao{
     fun getWalkingByTime(time: Long): LiveData<Walking>
 }
 
-@Database(entities = [Cycling::class, CyclingTrack::class, Walking::class], version = 4)
+@Database(entities = [Cycling::class, CyclingTrack::class, Walking::class], version = 5)
 abstract class TrainingDatabase : RoomDatabase() {
     abstract val trackerDao: TrackerDao
     abstract val walkingDao: WalkingDao
