@@ -45,7 +45,7 @@ Saat waktu sudah sesuai jadwal, pengguna akan ditampilkan notifikasi sesuai tipe
 1. Retrofit : Digunakan untuk pemanggilan API.
 2. RxJava : Digunakan untuk handling response dari pemanggilan API yang telah dilakukan menggunakan retrofit.
 3. Glide : Digunakan untuk menampilkan gambar dari sport news.
-
+4. Room : Digunakan untuk menyimpan training history dan schedule.
 
 ## Screenshot Aplikasi
 
