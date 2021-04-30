@@ -57,8 +57,8 @@
         android:label="fragment_log_list"
         tools:layout="@layout/fragment_log_list" >
         <argument
-            android:name="date"
-            app:argType="java.time.LocalDate" />
+            android:name="calendar"
+            app:argType="java.util.Calendar" />
         <action
             android:id="@+id/action_log_list_page_to_walking_detail_page"
             app:destination="@id/walking_detail_page" />

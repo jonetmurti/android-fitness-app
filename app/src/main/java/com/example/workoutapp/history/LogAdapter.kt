@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.workoutapp.databinding.LogItemBinding
+import java.util.*
 
 class LogAdapter(
         private val listener: LogClickListener,
@@ -17,7 +18,12 @@ class LogAdapter(
 
         fun bind(item: TrainingLog) {
             binding.trainingTypeText.text = item.type.capitalize()
-            // TODO: change time start and time end text
+
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.timeInMillis = item.timeStart
+            binding.logTimeStartText.text = "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${calendar.get(Calendar.SECOND)}"
+            calendar.timeInMillis = item.timeEnd
+            binding.logTimeEndText.text = "${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}:${calendar.get(Calendar.SECOND)}"
 
             binding.root.setOnClickListener {
                 listener.onClick(item)

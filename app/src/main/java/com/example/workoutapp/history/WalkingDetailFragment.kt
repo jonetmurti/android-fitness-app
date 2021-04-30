@@ -1,6 +1,7 @@
 package com.example.workoutapp.history
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +11,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.R
+import com.example.workoutapp.database.TrainingDatabase
+import com.example.workoutapp.database.Walking
+import com.example.workoutapp.database.WalkingDao
 import com.example.workoutapp.databinding.FragmentWalkingDetailBinding
+import kotlinx.coroutines.runBlocking
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -46,9 +52,31 @@ class WalkingDetailFragment : Fragment() {
         val view = binding.root
         val args = WalkingDetailFragmentArgs.fromBundle(requireArguments())
 
-        // TODO: Get walking data from db based on id
-        // TODO: Set view related stuff
-        view.findViewById<TextView>(R.id.walkingIdText).text = args.id.toString()
+        val walkingDao: WalkingDao =
+                TrainingDatabase.getDatabase(requireContext().applicationContext).walkingDao
+
+        walkingDao.getWalkingById(args.id).observe(viewLifecycleOwner, androidx.lifecycle.Observer { walking ->
+            val dateText = view.findViewById<TextView>(R.id.dateWalkDetailText)
+            val timeStartText = view.findViewById<TextView>(R.id.timeStartWalkDetailText)
+            val timeEndText = view.findViewById<TextView>(R.id.timeEndWalkDetailText)
+            val totalStepText = view.findViewById<TextView>(R.id.totalStepWalkDetailText)
+            if (walking != null) {
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = walking.date
+                dateText.text = "${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}"
+                val tempCalendar: Calendar = Calendar.getInstance()
+                tempCalendar.timeInMillis = walking.timeStart
+                timeStartText.text = "${tempCalendar.get(Calendar.HOUR_OF_DAY)}:${tempCalendar.get(Calendar.MINUTE)}:${tempCalendar.get(Calendar.SECOND)}"
+                tempCalendar.timeInMillis = walking.timeEnd
+                timeEndText.text = "${tempCalendar.get(Calendar.HOUR_OF_DAY)}:${tempCalendar.get(Calendar.MINUTE)}:${tempCalendar.get(Calendar.SECOND)}"
+                totalStepText.text = walking.totalStep.toString()
+            } else {
+                dateText.text = "Data not found"
+                timeStartText.text = "Data not found"
+                timeEndText.text = "Data not found"
+                totalStepText.text = "Data not found"
+            }
+        })
 
         return view
     }

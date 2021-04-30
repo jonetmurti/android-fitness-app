@@ -6,6 +6,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.*
 
 @Dao
 interface TrackerDao{
@@ -27,9 +28,8 @@ interface TrackerDao{
     @Query("SELECT * FROM cycling WHERE id = :id")
     fun getCyclingById(id: Int): LiveData<CyclingAndTrack>
 
-//    @Transaction
-//    @Query("SELECT * FROM Cycling WHERE date = :date")
-//    fun getCyclingByDate(date: Long): LiveData<Cycling>
+    @Query("SELECT * FROM cycling")
+    suspend fun getCyclingAll(): List<Cycling>
 
     @Query("SELECT * FROM cycling WHERE timeStart = :time")
     fun getWalkingByTime(time: Long): LiveData<CyclingAndTrack>
@@ -40,6 +40,10 @@ interface WalkingDao{
     @Insert
     suspend fun insert(walking: Walking)
 
+    @Transaction
+    @Query("DELETE FROM cycling")
+    suspend fun deleteAllCycling()
+
     @Update
     suspend fun update(walking: Walking)
 
@@ -49,8 +53,8 @@ interface WalkingDao{
     @Query("SELECT * FROM walking WHERE id = :id")
     fun getWalkingById(id: Int): LiveData<Walking>
 
-    @Query("SELECT * FROM walking WHERE date = :date")
-    fun getWalkingByDate(date: Long): LiveData<Walking>
+    @Query("SELECT * FROM walking")
+    suspend fun getWalkingAll(): List<Walking>
     
     @Query("SELECT * FROM walking WHERE timeStart = :time")
     fun getWalkingByTime(time: Long): LiveData<Walking>

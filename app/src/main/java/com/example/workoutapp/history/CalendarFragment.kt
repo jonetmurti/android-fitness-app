@@ -45,23 +45,16 @@ class CalendarFragment : Fragment() {
         val view = binding.root
 
         calendar = Calendar.getInstance()
-        date = LocalDate.of(
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH) + 1,
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
 
         calendarView = view.findViewById(R.id.calendarView)
         calendarView.setOnDateChangeListener { _, year: Int, month: Int, day: Int  ->
-            date = LocalDate.of(year, month + 1, day)
-//            calendar.set(year, month, day)
-//            calendar = Date(3)
+            calendar.set(year, month, day)
         }
 
         logListButton = binding.logListBtn
         logListButton.setOnClickListener {
             findNavController()
-                .navigate(CalendarFragmentDirections.actionHistoryPageToLogListPage(date))
+                .navigate(CalendarFragmentDirections.actionHistoryPageToLogListPage(calendar))
         }
 
         return view

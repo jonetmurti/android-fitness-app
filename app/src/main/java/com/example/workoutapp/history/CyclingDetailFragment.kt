@@ -10,7 +10,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.workoutapp.R
+import com.example.workoutapp.database.TrackerDao
+import com.example.workoutapp.database.TrainingDatabase
 import com.example.workoutapp.databinding.FragmentCyclingDetailBinding
+import java.util.*
+import com.example.workoutapp.service.calculateTotalDistance
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -46,7 +50,32 @@ class CyclingDetailFragment : Fragment() {
         val view = binding.root
         val args = CyclingDetailFragmentArgs.fromBundle(requireArguments())
 
-        view.findViewById<TextView>(R.id.cyclingIdText).text = args.id.toString()
+        val trackerDao: TrackerDao =
+                TrainingDatabase.getDatabase(requireContext().applicationContext).trackerDao
+
+        trackerDao.getCyclingById(args.id).observe(viewLifecycleOwner, androidx.lifecycle.Observer { data ->
+            val dateText = view.findViewById<TextView>(R.id.dateCyclingDetailText)
+            val timeStartText = view.findViewById<TextView>(R.id.timeStartCyclingDetailText)
+            val timeEndText = view.findViewById<TextView>(R.id.timeEndCyclingDetailText)
+            val totalDistText = view.findViewById<TextView>(R.id.totalDistCyclingDetailText)
+            if (data != null) {
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = data.cycling.date
+                dateText.text = "${calendar.get(Calendar.DAY_OF_MONTH)}/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.YEAR)}"
+                val tempCalendar: Calendar = Calendar.getInstance()
+                tempCalendar.timeInMillis = data.cycling.timeStart
+                timeStartText.text = "${tempCalendar.get(Calendar.HOUR_OF_DAY)}:${tempCalendar.get(Calendar.MINUTE)}:${tempCalendar.get(Calendar.SECOND)}"
+                tempCalendar.timeInMillis = data.cycling.timeEnd
+                timeEndText.text = "${tempCalendar.get(Calendar.HOUR_OF_DAY)}:${tempCalendar.get(Calendar.MINUTE)}:${tempCalendar.get(Calendar.SECOND)}"
+                totalDistText.text = calculateTotalDistance(data).toString()
+            } else {
+                dateText.text = "Data not found"
+                timeStartText.text = "Data not found"
+                timeEndText.text = "Data not found"
+                totalDistText.text = "Data not found"
+            }
+        })
+
 
         return view
     }
