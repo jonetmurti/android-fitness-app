@@ -1,7 +1,7 @@
 # Workout App
-Yahya - 13518029
-Jonet Wira Murti - 13518083
-Felicia Gojali - 13518101
+1. Yahya - 13518029
+2. Jonet Wira Murti - 13518083
+3. Felicia Gojali - 13518101
 
 ## Deskripsi Aplikasi
 Workout App adalah aplikasi dalam bidang kesehatan ataupun olahraga yang dapat membantu pengguna dalam melakukan tracking serta scheduling kegiatan olahraga yang dilakukannya. Selain itu, aplikasi ini juga dapat menampilkan berita-berita terkait olahraga terbaru yang dapat dilihat pengguna untuk menambah pengetahuan seputar olahraga.
@@ -50,6 +50,6 @@ Saat waktu sudah sesuai jadwal, pengguna akan ditampilkan notifikasi sesuai tipe
 ## Screenshot Aplikasi
 
 ## Pembagian Kerja Anggota Kelompok
-Yahya - 13518029 : Sport News, Tracking Walking & Cycling, Menampilkan maps pada detail cycling
-Jonet Wira Murti - 13518083 : Training History, Detail Walking & Cycling, Menampilkan maps pada detail cycling
-Felicia Gojali - 13518101 : Training Scheduler, Menampilkan notifikasi saat mulai jadwal training & auto tracking saat mulai jadwal training.
+1. Yahya - 13518029 : Sport News, Tracking Walking & Cycling, Menampilkan maps pada detail cycling
+2. Jonet Wira Murti - 13518083 : Training History, Detail Walking & Cycling, Menampilkan maps pada detail cycling
+3. Felicia Gojali - 13518101 : Training Scheduler, Menampilkan notifikasi saat mulai jadwal training & auto tracking saat mulai jadwal training.
