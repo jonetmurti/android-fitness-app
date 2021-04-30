@@ -31,7 +31,8 @@
         <service
             android:name=".service.LocationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="false"
+            android:foregroundServiceType="location"></service>
 
         <service
             android:name=".service.WalkingService"

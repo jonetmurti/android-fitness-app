@@ -33,24 +33,17 @@ class WalkingService: Service(), SensorEventListener {
     private lateinit var walkingDao: WalkingDao
 
     private var currentSteps: Long = 0
-    private lateinit var walking: LiveData<Walking>
+    private var walking: Walking? = null
     private var stepSensor: Sensor? = null
 
     override fun onCreate() {
         super.onCreate()
 
         walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
-        walking = walkingDao.getRecentWalking()
+
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
-//        locationRequest = LocationRequest.create().apply {
-//            interval = TimeUnit.SECONDS.toMillis(1)
-//            fastestInterval = TimeUnit.SECONDS.toMillis(1)
-//            maxWaitTime = TimeUnit.SECONDS.toMillis(2)
-//            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-//        }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -103,7 +96,7 @@ class WalkingService: Service(), SensorEventListener {
     override fun onUnbind(intent: Intent?): Boolean {
         Log.d(TAG, "onUnbind()")
 
-        if(SharedPreferenceUtil.getLocationTrackingPref(this)){
+        if(SharedPreferenceUtil.getWalkingTrackingPref(this)){
             Log.d(TAG, "Start foreground service")
             val notification = generateNotification(currentSteps)
             startForeground(NOTIFICATION_ID, notification)
@@ -120,7 +113,7 @@ class WalkingService: Service(), SensorEventListener {
 
         startService(Intent(applicationContext, WalkingService::class.java))
         running = true
-        previousTotalSteps = 0f
+        previousTotalSteps = SharedPreferenceUtil.getTotalStepPref(this)
 
         try{
             stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -129,36 +122,41 @@ class WalkingService: Service(), SensorEventListener {
                 // Rate suitable for the user interface
                 sensorManager?.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
             }
-//            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
         }catch (unlikely: SecurityException){
             SharedPreferenceUtil.saveWalkingTrackingPref(this, false)
-            Log.e(TAG, "Lost location permissions. Couldn't remove updates. $unlikely")
+            Log.e(TAG, "Lost Walking permissions. Couldn't remove updates. $unlikely")
         }
     }
 
     fun unsubscribeToWalkingUpdates(){
-        Log.d(TAG, "unsubscribeToLocationUpdates()")
+        Log.d(TAG, "unsubscribeToWalkingUpdates()")
         try{
 
-            Log.d("Walking Service", walking.value.toString())
+            Log.d("Walking Service", walking.toString())
             if(walkingDao == null){
                 walkingDao = TrainingDatabase.getDatabase(applicationContext).walkingDao
             }
-            walking.value?.let {
+            walking?.let {
+                val oldWalking = walking ?: return@let
                 Log.d("Walking Service", "Masuk sini woy")
-                walking.value!!.timeEnd = System.currentTimeMillis()
-                walkingDao.update(walking.value!!)
+                oldWalking.timeEnd = System.currentTimeMillis()
+
+                runBlocking {
+                    walkingDao.update(oldWalking)
+                }
+
             }
             stepSensor?.let {
                 sensorManager?.unregisterListener(this, it)
             }
 
+            SharedPreferenceUtil.saveTotalStepPref(this, totalSteps)
             stopSelf()
 
             SharedPreferenceUtil.saveWalkingTrackingPref(this, false)
         }catch(unlikely: SecurityException){
             SharedPreferenceUtil.saveWalkingTrackingPref(this, true)
-            Log.e(TAG, "Lost location permissions. Couldn't remove updates. $unlikely")
+            Log.e(TAG, "Lost Walking permissions. Couldn't remove updates. $unlikely")
         }
     }
 
@@ -173,13 +171,16 @@ class WalkingService: Service(), SensorEventListener {
             // and previous steps
             currentSteps = totalSteps.toLong() - previousTotalSteps.toLong()
 
-            val intent = Intent(LocationService.ACTION_FOREGROUND_ONLY_LOCATION_BROADCAST)
+            val intent = Intent(ACTION_FOREGROUND_ONLY_WALKING_BROADCAST)
             intent.putExtra(EXTRA_WALKING, currentSteps)
             LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
 
-            walking.value?.let {
+            walking?.let {
                 it.totalStep = currentSteps
-                walkingDao.update(it)
+                runBlocking {
+                    walkingDao.update(it)
+                }
+
             }
 
 
@@ -195,7 +196,7 @@ class WalkingService: Service(), SensorEventListener {
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        TODO("Not yet implemented")
+
     }
 
     private fun generateNotification(step: Long): Notification {
@@ -218,7 +219,7 @@ class WalkingService: Service(), SensorEventListener {
 
         val launchActivityIntent = Intent(this, MainActivity::class.java)
 
-        val cancelIntent = Intent(this, LocationService::class.java)
+        val cancelIntent = Intent(this, WalkingService::class.java)
         cancelIntent.putExtra(EXTRA_CANCEL_WALKING_TRACKING_FROM_NOTIFICATION, true)
 
         val servicePendingIntent = PendingIntent.getService(
@@ -237,6 +238,7 @@ class WalkingService: Service(), SensorEventListener {
             .setStyle(bigTextStyle)
             .setContentTitle(titleText)
             .setContentText(mainNotificationText)
+                .setSmallIcon(R.mipmap.ic_launcher)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOngoing(true)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)

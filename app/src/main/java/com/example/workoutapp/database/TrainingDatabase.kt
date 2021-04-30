@@ -30,6 +30,9 @@ interface TrackerDao{
 //    @Transaction
 //    @Query("SELECT * FROM Cycling WHERE date = :date")
 //    fun getCyclingByDate(date: Long): LiveData<Cycling>
+
+    @Query("SELECT * FROM cycling WHERE timeStart = :time")
+    fun getWalkingByTime(time: Long): LiveData<CyclingAndTrack>
 }
 
 @Dao
@@ -38,16 +41,19 @@ interface WalkingDao{
     suspend fun insert(walking: Walking)
 
     @Update
-    fun update(walking: Walking)
+    suspend fun update(walking: Walking)
 
     @Query("SELECT * FROM walking ORDER BY timeStart DESC LIMIT 1")
-    fun getRecentWalking(): LiveData<Walking>
+    suspend fun getRecentWalking(): Walking?
 
     @Query("SELECT * FROM walking WHERE id = :id")
     fun getWalkingById(id: Int): LiveData<Walking>
 
     @Query("SELECT * FROM walking WHERE date = :date")
     fun getWalkingByDate(date: Long): LiveData<Walking>
+    
+    @Query("SELECT * FROM walking WHERE timeStart = :time")
+    fun getWalkingByTime(time: Long): LiveData<Walking>
 }
 
 @Database(entities = [Cycling::class, CyclingTrack::class, Walking::class], version = 4)

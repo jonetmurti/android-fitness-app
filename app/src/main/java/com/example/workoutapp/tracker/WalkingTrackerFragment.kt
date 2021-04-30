@@ -1,31 +1,39 @@
 package com.example.workoutapp.tracker
 
+import android.Manifest
 import android.content.*
+import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import com.example.workoutapp.BuildConfig
+import com.example.workoutapp.MainActivity
 import com.example.workoutapp.R
 import com.example.workoutapp.databinding.FragmentWalkingTrackerBinding
 import com.example.workoutapp.service.LocationService
 import com.example.workoutapp.service.SharedPreferenceUtil
 import com.example.workoutapp.service.WalkingService
 import com.example.workoutapp.service.toText
+import com.google.android.material.snackbar.Snackbar
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
-
+private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
 /**
  * A simple [Fragment] subclass.
  * Use the [WalkingTrackerFragment.newInstance] factory method to
@@ -88,7 +96,7 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
                         ?: Log.d("Tracker Fragment", "Service not bound")
 //                findNavController().navigate(CyclingTrackerFragmentDirections.actionCyclingPageToTrackerResultFragment())
             }else{
-                walkingService?.subscribeToWalkingUpdates()
+                requestForegroundPermission()
             }
         }
         // Inflate the layout for this fragment
@@ -186,6 +194,76 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
                 .setupWithNavController(navController, appBarConfiguration)
     }
 
+    private fun foregroundPermissionApproved(): Boolean{
+        return PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(activity as MainActivity,
+                Manifest.permission.ACTIVITY_RECOGNITION)
+    }
+
+    private fun requestForegroundPermission(){
+        val provideRationale = foregroundPermissionApproved()
+
+        Log.d("Tracker Fragment", provideRationale.toString())
+        if(provideRationale){
+            Snackbar.make(
+                    requireActivity().findViewById(R.id.drawerLayout),
+                    R.string.permission_rationale,
+                    Snackbar.LENGTH_LONG
+            )
+                    .setAction("OK") {
+                        // Request permission
+                        requestPermissions(
+                                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                                REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+                        )
+                    }
+                    .show()
+
+        }else{
+            requestPermissions(
+                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                    REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        Log.d("Walking Fragment", "onRequestPermissionResult")
+
+        when(requestCode){
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE -> when{
+                grantResults.isEmpty() ->
+                    Log.d("Tracker Fragment", "User Interaction was cancelled")
+
+                grantResults[0] == PackageManager.PERMISSION_GRANTED ->
+                    walkingService?.subscribeToWalkingUpdates()
+
+                else -> {
+                    updateButtonState(false)
+                    Snackbar.make(
+                            requireActivity().findViewById(R.id.drawerLayout),
+                            "Permission was denied, but is needed for core functionality",
+                            Snackbar.LENGTH_LONG
+                    )
+                            .setAction("Settings"){
+                                val intent = Intent()
+                                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                val uri = Uri.fromParts(
+                                        "package",
+                                        BuildConfig.APPLICATION_ID,
+                                        null
+                                )
+
+                                intent.data = uri
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                startActivity(intent)
+                            }
+                            .show()
+                }
+
+            }
+        }
+    }
+
     private fun logResultsToScreen(output: String) {
         val outputWithPreviousLogs = "$output\n${binding.tvStep.text}"
         binding.tvStep.text = outputWithPreviousLogs
@@ -195,10 +273,11 @@ class WalkingTrackerFragment : Fragment(), SharedPreferences.OnSharedPreferenceC
     private inner class WalkingBroadcastReceiver : BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
-            val step = intent.getIntExtra(
+            val step = intent.getLongExtra(
                     WalkingService.EXTRA_WALKING, 0
             )
 
+            Log.d("Walking Fragment", "Masuk intent nya")
             logResultsToScreen("Foreground steps: $step")
         }
     }
