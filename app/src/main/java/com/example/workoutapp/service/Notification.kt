@@ -104,9 +104,8 @@ import java.util.*
         if (start == "0" ){
             if (trainingType == "Cycling"){
                 val cy : CyclingAndTrack? = trackerDao.getRecentCycling().value
-                Log.d("recent cycling", cy.toString())
                 val kms : Double? = cy?.let { calculateTotalDistance(it) }
-                results = kms.toString() + " kms"
+                results = kms?.let {it.toString() }+ " kms"
             }
             builder.setContentTitle("You have ended your exercise")
                     .setContentText(trainingType + " exercise with: " + results)
