@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -15,6 +16,8 @@ import com.example.workoutapp.database.TrackerDao
 import com.example.workoutapp.database.TrainingDatabase
 import com.example.workoutapp.databinding.FragmentCyclingDetailBinding
 import com.example.workoutapp.service.calculateTotalDistance
+import com.example.workoutapp.tracker.TrackerViewModel
+import com.example.workoutapp.tracker.TrackerViewModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -90,6 +93,16 @@ class CyclingDetailFragment : Fragment(), OnMapReadyCallback {
             }
         })
 
+        val viewModelFactory = TrackerViewModelFactory(requireActivity().application, trackerDao)
+        val trackerViewModel = ViewModelProvider(
+                this, viewModelFactory
+        ).get(TrackerViewModel::class.java)
+
+        trackerViewModel.tracks.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            listLatLng = it.tracks.map {
+                LatLng(it.latitude, it.longitude)
+            }
+        })
 
         return view
     }
